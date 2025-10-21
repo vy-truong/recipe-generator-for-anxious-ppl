@@ -1,26 +1,98 @@
 @import "tailwindcss";
 
+/* 🌗 Theme Variables */
+@theme {
+  /* ─────── LIGHT MODE ─────── */
+  --color-bg: hsl(32, 40%, 95%);        /* main background */
+  --color-surface: hsl(0, 0%, 100%);     /* cards, containers */
+  --color-muted: hsl(210, 20%, 90%);
+  --color-heading: hsl(0, 0%, 0%);
+  --color-heading-hl: hsl(211, 48%, 60%);
+  --color-text: hsl(222, 47%, 11%);
+  --color-accent: hsl(221, 83%, 53%);
+  --color-border: hsl(0, 0%, 90%);
+  --color-gradient-start: #6FA6E8;
+  --color-gradient-mid: #5A8BD9;
+  --color-gradient-end: #355CA8;
+
+  /* ─────── DARK MODE ─────── */
+  --dark-color-bg: hsl(222, 47%, 8%);
+  --dark-color-surface: hsl(222, 47%, 13%);
+  --dark-color-muted: hsl(222, 47%, 20%);
+  --dark-color-heading: hsl(32, 100%, 93%);
+  --dark-color-heading-hl: hsl(211, 60%, 70%);
+  --dark-color-text: hsl(110, 100%, 95%);
+  --dark-color-accent: hsl(221, 83%, 65%);
+  --dark-color-border: hsl(222, 47%, 25%);
+  --dark-color-gradient-start: #1B2947;
+  --dark-color-gradient-mid: #233660;
+  --dark-color-gradient-end: #355CA8;
+}
+
+/* ─────── LIGHT MODE (default) ─────── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: light;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* ─────── DARK MODE ─────── */
+html.dark {
+  color-scheme: dark;
+  background-color: var(--dark-color-bg);
+  color: var(--dark-color-text);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+/* ─────── BASE STYLING ─────── */
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  @apply font-sans antialiased;
+}
+
+/* Example utilities */
+.bg-surface {
+  background-color: var(--color-surface);
+}
+html.dark .bg-surface {
+  background-color: var(--dark-color-surface);
+}
+
+.bg-app {
+  background-color: var(--color-bg);
+}
+html.dark .bg-app {
+  background-color: var(--dark-color-bg);
+}
+
+.bg-chip {
+  background-color: rgba(253, 170, 107, 0.18);
+}
+html.dark .bg-chip {
+  background-color: rgba(253, 170, 107, 0.28);
+}
+
+.text-heading {
+  color: var(--color-heading);
+}
+html.dark .text-heading {
+  color: var(--dark-color-heading);
+}
+
+/* Gradient helper */
+.bg-gradient-main {
+  background-image: linear-gradient(
+    to bottom right,
+    var(--color-gradient-start),
+    var(--color-gradient-mid),
+    var(--color-gradient-end)
+  );
+}
+html.dark .bg-gradient-main {
+  background-image: linear-gradient(
+    to bottom right,
+    var(--dark-color-gradient-start),
+    var(--dark-color-gradient-mid),
+    var(--dark-color-gradient-end)
+  );
 }
