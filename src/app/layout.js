@@ -30,7 +30,7 @@ export default function RootLayout({ children }) {
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitializer }} />
       </head>
-      <body className="bg-app transition-colors duration-300 ease-out">
+      <body className="bg-app transition-colors duration-300 ease-out" suppressHydrationWarning>
         <AppProviders>{children}</AppProviders>
       </body>
     </html>

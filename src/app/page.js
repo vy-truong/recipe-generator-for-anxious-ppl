@@ -1,12 +1,13 @@
 "use client";
 
 // React imports
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import AppHeader from "./components/AppHeader";
 import IngredientCombos from "./components/IngredientCombos";
 import IngredientExamples from "./components/IngredientExamples";
 import DifficultySelector from "./components/DifficultySelector";
+import MainSidebar from "./components/MainSidebar";
 import { comboSuggestions } from "./data/ingredients";
 import supabase from "./config/supabaseClient"; // import the supabase client (future use for saving data)
 import { useUser } from "./components/UserContext";
@@ -19,6 +20,7 @@ export default function HomePage() {
   // ──────────────────────────────
   // Store what user typed into the ingredients text area
   const [userIngredients, setUserIngredients] = useState("");
+  const [hasSavedResults, setHasSavedResults] = useState(false);
 
   // Store loading state (true while waiting for AI to respond)
   const [isLoading, setIsLoading] = useState(false);
@@ -47,6 +49,12 @@ export default function HomePage() {
     { value: "hard", label: "Hard" },
     { value: "surprise", label: "Surprise me" },
   ];
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const results = sessionStorage.getItem("fridgechef-results");
+    setHasSavedResults(Boolean(results));
+  }, []);
 
   // ──────────────────────────────
   // STEP 2: HANDLE INPUT SUGGESTION BUTTON CLICK
@@ -172,7 +180,8 @@ export default function HomePage() {
       {/* ──────────────────────────────
           HERO SECTION (CENTER CONTENT)
       ────────────────────────────── */}
-      <main className="flex-1 w-full">
+      <main className="flex-1 w-full flex">
+        <MainSidebar className="hidden lg:flex" />
         <section className="mx-auto max-w-4xl px-4 sm:px-6 py-8 sm:py-12 lg:py-16 flex flex-col items-center justify-center text-center min-h-[70vh] gap-6">
 
           {/* Main heading */}
@@ -184,6 +193,17 @@ export default function HomePage() {
           <p className="text-sm sm:text-base text-[var(--color-text)] dark:text-[var(--color-textd)] max-w-2xl leading-relaxed">
             Tell us what you have, and we’ll inspire you with delicious dishes you can make right now.
           </p>
+
+          {hasSavedResults && (
+            <button
+              type="button"
+              onClick={() => router.push("/results")}
+              className="inline-flex items-center gap-2 rounded-2xl border border-default bg-surface px-4 py-2 text-sm font-semibold hover:opacity-90 transition shadow"
+            >
+              Resume your last recipes
+              <span className="text-base">→</span>
+            </button>
+          )}
 
           {/* ──────────────────────────────
               INPUT CARD AREA

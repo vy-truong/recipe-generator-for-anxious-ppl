@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import ThemeToggle from "./ThemeToggle";
 import { useUser } from "./UserContext";
 
+
 const navigationLinks = [
   { href: "/login", label: "Log in" },
   { href: "/signup", label: "Sign up" },
@@ -31,7 +32,9 @@ export default function AppHeader() {
   };
 
   return (
-    <header className="w-full sticky top-0 z-20 bg-white dark:bg-[var(--color-surfaced)] border-b border-default transition-colors shadow-sm">
+    <header className="w-full sticky top-0 z-20 bg-white dark:bg-[var(--color-surfaced)] border-b border-default transition-colors shadow-sm flex">
+
+
 
      <nav className="w-full px-6 sm:px-10 lg:px-16 py-3 sm:py-5 flex flex-wrap items-center justify-between gap-3">
         <Link href="/" className="flex items-center gap-3" aria-label="FridgeChef home">
