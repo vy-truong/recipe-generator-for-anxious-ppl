@@ -1,5 +1,8 @@
 
 import "./globals.css";
+import AppProviders from "./providers";
+import '@mantine/core/styles.css';
+
 
 const themeInitializer = `
 (() => {
@@ -23,13 +26,14 @@ const themeInitializer = `
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning  >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitializer }} />
       </head>
       <body className="bg-app transition-colors duration-300 ease-out">
-        {children}
+        <AppProviders>{children}</AppProviders>
       </body>
     </html>
   );
 }
+// className={`${isDark ? 'dark' : ''}`}

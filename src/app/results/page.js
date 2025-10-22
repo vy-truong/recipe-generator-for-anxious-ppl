@@ -48,22 +48,22 @@ export default function ResultsPage() {
 
   if (!isHydrated) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-app text-[var(--color-text)] dark:text-[var(--dark-color-text)]">
+      <div className="min-h-screen flex items-center justify-center bg-app text-[var(--color-text)] dark:text-[var(--color-textd)]">
         <p className="text-base font-medium animate-pulse">Plating your recipes…</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-app text-[var(--color-text)] dark:text-[var(--dark-color-text)]">
-      <header className="border-b border-[var(--color-border)] bg-surface/90 backdrop-blur-sm sticky top-0 z-30">
-        <nav className="mx-auto max-w-5xl px-6 py-4 flex items-center justify-between">
+    <div className="min-h-screen flex flex-col bg-app text-[var(--color-text)] dark:text-[var(--color-textd)]">
+      <header className="border-b border-default bg-app/95 backdrop-blur supports-[backdrop-filter]:bg-app/80 sticky top-0 z-30">
+        <nav className="mx-auto max-w-5xl px-4 sm:px-6 py-3 sm:py-4 flex flex-wrap items-center justify-between gap-3">
           <button
             type="button"
             onClick={() => router.push("/")}
-            className="inline-flex items-center gap-2 text-sm text-black/70 dark:text-white/70 hover:text-[var(--color-heading-hl)]"
+            className="inline-flex items-center gap-2 text-sm text-[var(--color-text)] dark:text-[var(--color-textd)] opacity-80 hover:text-[var(--color-heading)] dark:hover:text-[var(--color-headingd)]"
           >
-            <span className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[var(--color-border)]">
+            <span className="inline-flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full border border-default">
               ←
             </span>
             Try different ingredients
@@ -72,10 +72,10 @@ export default function ResultsPage() {
           <div className="flex items-center gap-3">
             <ThemeToggle />
             <div className="hidden sm:flex items-center gap-3">
-              <span className="text-xs uppercase tracking-wide text-black/50 dark:text-white/50">
+              <span className="text-xs uppercase tracking-wide text-[var(--color-text)] dark:text-[var(--color-textd)] opacity-60">
                 Difficulty
               </span>
-              <span className="inline-flex items-center justify-center rounded-xl border border-[var(--color-border)] px-3 py-1 text-sm font-semibold">
+              <span className="inline-flex items-center justify-center rounded-xl border border-default px-3 py-1 text-sm font-semibold">
                 {difficultyLabel || "Custom"}
               </span>
             </div>
@@ -84,17 +84,17 @@ export default function ResultsPage() {
       </header>
 
       <main className="flex-1">
-        <section className="mx-auto max-w-5xl px-6 py-12 md:py-16">
-          <header className="max-w-3xl">
-            <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">
+        <section className="mx-auto max-w-5xl px-4 sm:px-6 py-10 sm:py-12 lg:py-16">
+          <header className="max-w-3xl space-y-4">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-[var(--color-heading)] dark:text-[var(--color-headingd)]">
               Here’s what you can make! 🎉
             </h1>
-            <p className="mt-3 text-sm md:text-base text-black/65 dark:text-white/70 leading-relaxed">
+            <p className="text-sm sm:text-base text-[var(--color-text)] dark:text-[var(--color-textd)] opacity-80 leading-relaxed">
               Tap a dish to see the detailed recipe. Each option celebrates your ingredients and matches the{" "}
               <span className="font-semibold lowercase">{meta.difficulty}</span> vibe you picked.
             </p>
             {meta.ingredients?.length ? (
-              <div className="mt-5 flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2">
                 {meta.ingredients.map((item) => (
                   <span
                     key={item}
@@ -107,7 +107,7 @@ export default function ResultsPage() {
             ) : null}
           </header>
 
-          <div className="mt-10 grid gap-6 md:grid-cols-2">
+          <div className="mt-10 grid gap-6 sm:grid-cols-2">
             {recipes.map((recipe, index) => {
               const isExpanded = expandedIndex === index;
               const totalMinutes =
@@ -117,19 +117,19 @@ export default function ResultsPage() {
               return (
                 <article
                   key={`${recipe.name}-${index}`}
-                  className="rounded-3xl border border-[var(--color-border)] bg-surface shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
+                  className="rounded-3xl border border-default bg-surface shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
                 >
-                  <div className="p-6">
-                    <div className="flex items-start justify-between gap-4">
+                  <div className="p-5 sm:p-6">
+                    <div className="flex flex-col gap-3">
                       <div>
-                        <h2 className="text-xl font-semibold text-[var(--color-heading)]">{recipe.name}</h2>
-                        <p className="mt-2 text-sm text-black/70 dark:text-white/70 leading-relaxed">
+                        <h2 className="text-lg sm:text-xl font-semibold text-[var(--color-heading)]">{recipe.name}</h2>
+                        <p className="mt-2 text-sm sm:text-base text-[var(--color-text)] dark:text-[var(--color-textd)] opacity-85 leading-relaxed">
                           {recipe.description}
                         </p>
                       </div>
                     </div>
 
-                    <div className="mt-4 flex flex-wrap items-center gap-2 text-xs font-medium text-black/60 dark:text-white/60">
+                    <div className="mt-4 flex flex-wrap items-center gap-2 text-xs font-medium text-[var(--color-text)] dark:text-[var(--color-textd)] opacity-70">
                       {totalMinutes ? (
                         <span className="inline-flex items-center gap-1 rounded-full bg-chip px-3 py-1">
                           ⏱ {totalMinutes}
@@ -168,12 +168,12 @@ export default function ResultsPage() {
                   </div>
 
                   {isExpanded ? (
-                    <div className="border-t border-[var(--color-border)] bg-surface p-6">
+                    <div className="border-t border-default bg-surface p-5 sm:p-6">
                       <div>
-                        <h3 className="text-sm font-semibold uppercase tracking-wide text-black/60 dark:text-white/60">
+                        <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-text)] dark:text-[var(--color-textd)] opacity-70">
                           Ingredients
                         </h3>
-                        <ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-black/75 dark:text-white/75">
+                        <ul className="mt-3 list-disc space-y-2 pl-4 sm:pl-5 text-sm text-[var(--color-text)] dark:text-[var(--color-textd)] opacity-85">
                           {Array.isArray(recipe.ingredients)
                             ? recipe.ingredients.map((entry, itemIndex) => {
                                 const ingredientLabel =
@@ -187,10 +187,10 @@ export default function ResultsPage() {
                       </div>
 
                       <div className="mt-6">
-                        <h3 className="text-sm font-semibold uppercase tracking-wide text-black/60 dark:text-white/60">
+                        <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-text)] dark:text-[var(--color-textd)] opacity-70">
                           Steps
                         </h3>
-                        <ol className="mt-3 list-decimal space-y-3 pl-5 text-sm leading-relaxed text-black/75 dark:text-white/75">
+                        <ol className="mt-3 list-decimal space-y-3 pl-4 sm:pl-5 text-sm leading-relaxed text-[var(--color-text)] dark:text-[var(--color-textd)] opacity-85">
                           {Array.isArray(recipe.steps)
                             ? recipe.steps.map((step, stepIndex) => <li key={stepIndex}>{step}</li>)
                             : null}
@@ -198,7 +198,7 @@ export default function ResultsPage() {
                       </div>
 
                       {recipe.proTip ? (
-                        <p className="mt-5 rounded-2xl border border-dashed border-[var(--color-border)] bg-surface px-4 py-3 text-sm text-[var(--color-heading-hl)]">
+                        <p className="mt-5 rounded-2xl border border-dashed border-default bg-surface px-4 py-3 text-sm text-[var(--color-headingd)] dark:text-[var(--color-headingd)]">
                           💡 {recipe.proTip}
                         </p>
                       ) : null}

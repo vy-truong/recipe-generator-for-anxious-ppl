@@ -12,9 +12,10 @@ export async function POST(req) {
   try {
     // Parse request data (ingredients + difficulty)
     const { ingredients, difficulty } = await req.json();
+    console.log("[API] Incoming payload", { ingredients, difficulty });
 
     const normalizedDifficulty = typeof difficulty === "string" ? difficulty.toLowerCase() : "";
-    const allowedDifficulties = ["easy", "medium", "hard"];
+    const allowedDifficulties = ["easy", "medium", "hard", "surprise"];
     const selectedDifficulty = allowedDifficulties.includes(normalizedDifficulty)
       ? normalizedDifficulty
       : "medium";
@@ -29,6 +30,7 @@ export async function POST(req) {
       : [];
 
     if (!ingredientsList.length) {
+      console.warn("[API] Missing ingredients");
       return new Response(JSON.stringify({ error: "Missing ingredients" }), { status: 400 });
     }
 
@@ -45,9 +47,45 @@ export async function POST(req) {
         time: "45-70 minutes",
         tone: "Lean into ambitious techniques suited for confident home cooks.",
       },
+      surprise: {
+        time: "Mix of easy, medium, and hard ranges",
+        tone: "Offer a playful variety spanning beginner to advanced home cooks.",
+      },
     };
 
-    const prompt = `
+    const surprisePrompt = `
+      You are FridgeChef, an encouraging culinary mentor. A user has these ingredients available: ${ingredientsList.join(
+        ", "
+      )}.
+      They want to be surprised with a variety of recipe challenges.
+
+      Please produce exactly three recipe objects in valid JSON (no markdown). Requirements:
+      - Provide one easy, one medium, and one hard recipe. Set the "difficulty" field accordingly.
+      - Respect these time ranges: Easy 10-20 mins, Medium 25-40 mins, Hard 45-70 mins.
+      - Use the provided ingredients as the foundation, adding sensible pantry items if necessary.
+
+      Each recipe object must include:
+      {
+        "name": "Dish name",
+        "description": "2–3 sentence preview in a cozy, motivating tone.",
+        "difficulty": "easy | medium | hard",
+        "time": {
+          "totalMinutes": number,
+          "breakdown": "Short note describing prep vs cook (e.g., 5 prep / 15 cook)"
+        },
+        "cuisine": "Cuisine inspiration (e.g., Asian, Mediterranean)",
+        "tags": ["short descriptive tags", "..."],
+        "ingredients": [
+          { "item": "Ingredient name", "quantity": "quantity + unit if possible" }
+        ],
+        "steps": ["Step-by-step directions written in first-person encouragement"],
+        "proTip": "One sentence tip aligned with the recipe’s difficulty."
+      }
+
+      Return strictly valid JSON containing an array of the three recipes in the order: easy, medium, hard.
+    `;
+
+    const defaultPrompt = `
       You are FridgeChef, an encouraging culinary mentor. A user has these ingredients available: ${ingredientsList.join(
         ", "
       )}.
@@ -84,6 +122,8 @@ export async function POST(req) {
       - ${difficultyGuidance[selectedDifficulty].tone}
     `;
 
+    const prompt = selectedDifficulty === "surprise" ? surprisePrompt : defaultPrompt;
+
     const response = await openai.chat.completions.create({
       model: "gpt-5",
       messages: [
@@ -106,10 +146,12 @@ export async function POST(req) {
     }
 
     const cleaned = aiReply.replace(/```json|```/g, "").trim();
+    console.log("[API] Raw AI reply", aiReply);
     let parsedReply;
 
     try {
       parsedReply = JSON.parse(cleaned);
+      console.log("[API] Parsed AI reply", parsedReply);
     } catch (parseError) {
       console.error("Failed to parse AI response as JSON:", cleaned);
       throw new Error("The recipe assistant returned data in an unexpected format.");
@@ -118,6 +160,8 @@ export async function POST(req) {
     if (!Array.isArray(parsedReply) || parsedReply.length === 0) {
       throw new Error("The recipe assistant returned an empty recipe list.");
     }
+
+    console.log("[API] Responding with", { count: parsedReply.length });
 
     return new Response(
       JSON.stringify({
@@ -132,7 +176,7 @@ export async function POST(req) {
       }
     );
   } catch (error) {
-    console.error(error);
+    console.error("[API] Request failed", error);
     return new Response(
       JSON.stringify({ error: error.message || "Something went wrong" }),
       { status: 500, headers: { "Content-Type": "application/json" } }

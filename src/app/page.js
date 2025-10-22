@@ -3,9 +3,11 @@
 // React imports
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import ThemeToggle from "./components/ThemeToggle"; // import the dark/light toggle component
+import AppHeader from "./components/AppHeader";
 import IngredientCombos from "./components/IngredientCombos";
-import { comboSuggestions } from "./data/comboSuggestions";
+import IngredientExamples from "./components/IngredientExamples";
+import DifficultySelector from "./components/DifficultySelector";
+import { comboSuggestions } from "./data/ingredients";
 import supabase from "./config/supabaseClient"; // import the supabase client (future use for saving data)
 
 export default function HomePage() {
@@ -22,24 +24,13 @@ export default function HomePage() {
   // Store selected difficulty level
   const [difficulty, setDifficulty] = useState("easy");
 
+  console.log("[HomePage] Render", { difficulty, isLoading, userIngredientsLength: userIngredients.length });
+
   const difficultyOptions = [
     { value: "easy", label: "Easy" },
     { value: "medium", label: "Medium" },
     { value: "hard", label: "Hard" },
-  ];
-
-  // Example ingredient suggestions shown below input box
-  const exampleIngredientSuggestions = [
-    "egg",
-    "beef",
-    "rice",
-    "tomato",
-    "broccoli",
-    "spam",
-    "pasta",
-    "chicken",
-    "carrot",
-    "bread",
+    { value: "surprise", label: "Surprise me" },
   ];
 
   // ──────────────────────────────
@@ -47,6 +38,7 @@ export default function HomePage() {
   // ──────────────────────────────
   // When user clicks one of the example ingredient buttons, fill the text area with that example
   const handleExampleClick = (ingredient) => {
+    console.log("[HomePage] Example ingredient clicked", ingredient);
     const current = userIngredients
       .split(",")
       .map((item) => item.trim())
@@ -58,9 +50,11 @@ export default function HomePage() {
 
     const updated = [...current, ingredient];
     setUserIngredients(updated.join(", "));
+    console.log("[HomePage] Updated ingredients after example", updated);
   };
 
   const handleComboClick = (comboText) => {
+    console.log("[HomePage] Combo selected", comboText);
     setUserIngredients(comboText);
   };
 
@@ -69,10 +63,12 @@ export default function HomePage() {
   // ──────────────────────────────
   // When user clicks “Find Dishes” button
   const handleSubmit = async (event) => {
+    console.log("[HomePage] Submit triggered");
     event.preventDefault(); // prevent the page from refreshing
 
     // If text area is empty, stop and warn user
     if (!userIngredients.trim()) {
+      console.warn("[HomePage] Submit blocked: no ingredients provided");
       alert("Please enter your ingredients first 🍳");
       return;
     }
@@ -83,12 +79,14 @@ export default function HomePage() {
       .filter(Boolean);
 
     if (!ingredientsList.length) {
+      console.warn("[HomePage] Submit blocked: ingredient parsing returned empty array");
       alert("Please list at least one ingredient 🍅");
       return;
     }
 
     // Clear previous result and set loading state
     setIsLoading(true);
+    console.log("[HomePage] Sending request", { ingredientsList, difficulty });
 
     try {
       // ──────────────────────────────
@@ -110,6 +108,7 @@ export default function HomePage() {
 
       // Convert the AI’s reply from JSON format into JavaScript text
       const data = await response.json();
+      console.log("[HomePage] Response received", { ok: response.ok, keys: Object.keys(data || {}) });
 
       // If the AI replied successfully, store it and navigate to results page
       if (response.ok && Array.isArray(data.reply)) {
@@ -124,12 +123,15 @@ export default function HomePage() {
 
         if (typeof window !== "undefined") {
           sessionStorage.setItem("fridgechef-results", JSON.stringify(payload));
+          console.log("[HomePage] Stored results in sessionStorage", payload);
         }
 
         router.push("/results");
+        console.log("[HomePage] Navigated to /results");
       } else {
         const fallbackMessage =
           data?.error || "Sorry, I couldn’t generate recipes this time. Please try again later.";
+        console.warn("[HomePage] Non-OK response", { status: response.status, fallbackMessage, data });
         alert(fallbackMessage);
       }
     } catch (error) {
@@ -138,6 +140,7 @@ export default function HomePage() {
     } finally {
       // When everything is done (either success or fail), stop loading spinner
       setIsLoading(false);
+      console.log("[HomePage] Request finished");
     }
   };
 
@@ -145,161 +148,85 @@ export default function HomePage() {
   // STEP 4: RETURN PAGE STRUCTURE
   // ──────────────────────────────
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-app">
       {/* ──────────────────────────────
           TOP NAVBAR SECTION
       ────────────────────────────── */}
-      <header className="w-full">
-        <nav className="mx-auto max-w-5xl px-6 py-4 flex items-center justify-between">
-          {/* Left side: Logo and brand name */}
-          <div className="flex items-center gap-3">
-            {/* Logo icon inside a gradient square */}
-            <span className="inline-flex h-10 w-10 rounded-2xl bg-gradient-main shadow-sm items-center justify-center">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
-                <path
-                  d="M12 3l2.2 4.6 5 .7-3.6 3.5.9 5-4.5-2.4L8 16.8l.9-5L5.3 8.3l5-.7L12 3Z"
-                  stroke="white"
-                  strokeWidth="1.5"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </span>
-            <span className="font-semibold text-lg text-heading">FridgeChef</span>
-          </div>
-
-          {/* Right side: Theme toggle + login/signup buttons */}
-          <div className="flex items-center gap-2">
-            <ThemeToggle /> {/* Reusable dark/light toggle component */}
-            <a
-              href="/login"
-              className="rounded-xl px-3 py-2 text-sm border border-[var(--color-border)] bg-surface hover:opacity-90 transition"
-            >
-              Log in
-            </a>
-            <a
-              href="/signup"
-              className="rounded-xl px-3 py-2 text-sm bg-gradient-main text-white shadow hover:opacity-90 transition"
-            >
-              Sign up
-            </a>
-          </div>
-        </nav>
-      </header>
+      <AppHeader />
 
       {/* ──────────────────────────────
           HERO SECTION (CENTER CONTENT)
       ────────────────────────────── */}
       <main className="flex-1 w-full">
-        <section className="mx-auto max-w-4xl px-6 py-10 md:py-16 flex flex-col items-center justify-center text-center min-h-[70vh]">
-          {/* App icon */}
-          <div className="h-14 w-14 rounded-2xl bg-gradient-main shadow mb-6 flex items-center justify-center">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
-              <path d="M4 11h16M6 7h12M8 15h8" stroke="white" strokeWidth="1.8" strokeLinecap="round" />
-            </svg>
-          </div>
+        <section className="mx-auto max-w-4xl px-4 sm:px-6 py-8 sm:py-12 lg:py-16 flex flex-col items-center justify-center text-center min-h-[70vh] gap-6">
 
           {/* Main heading */}
-          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-heading dark:text-[var(--dark-color-text)]">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-heading dark:text-[var(--color-textd)]">
             What’s in your fridge?
           </h1>
 
           {/* Subheading / description */}
-          <p className="mt-4 text-[0.975rem] md:text-basetext-[var(--color-text)] dark:text-[var(--dark-color-text)] max-w-2xl">
+          <p className="text-sm sm:text-base text-[var(--color-text)] dark:text-[var(--color-textd)] max-w-2xl leading-relaxed">
             Tell us what you have, and we’ll inspire you with delicious dishes you can make right now.
           </p>
 
           {/* ──────────────────────────────
               INPUT CARD AREA
           ────────────────────────────── */}
-          <div className="mt-10 w-full">
-            <div className="mx-auto max-w-3xl bg-surface rounded-3xl shadow-lg p-6 md:p-8 border border-[var(--color-border)]">
-              <form onSubmit={handleSubmit}>
+          <div className="w-full">
+            <div className="mx-auto bg-surface rounded-3xl shadow-lg p-5 sm:p-6 md:p-8 border border-default">
+              <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                 {/* Hidden label for accessibility */}
                 <label htmlFor="ingredients" className="sr-only">
                   What’s in your fridge?
                 </label>
 
-                <div className="mb-5 text-left">
-                  <div className="flex flex-wrap gap-2">
-                    {exampleIngredientSuggestions.map((example) => (
-                      <button
-                        key={example}
-                        onClick={() => handleExampleClick(example)}
-                        type="button"
-                        className="px-3 py-1.5 rounded-full text-xs md:text-sm border border-[var(--color-border)] bg-surface hover:opacity-90 transition shadow-sm"
-                      >
-                        {example}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+                <IngredientExamples onSelect={handleExampleClick} />
 
                 {/* Textarea for user ingredients input */}
                 <textarea
                   id="ingredients"
-                  rows={3}
+                  rows={4}
                   value={userIngredients}
                   onChange={(e) => setUserIngredients(e.target.value)}
                   placeholder="Type your ingredients here 🥬 (e.g., egg, tomato, cucumber, rice, chicken)"
-                  className="w-full resize-none rounded-2xl border border-[var(--color-border)] bg-transparent px-4 py-3 outline-none focus:ring-2 focus:ring-[var(--color-gradient-mid)]"
+                  className="w-full resize-none rounded-2xl border border-default bg-transparent px-4 py-3 outline-none focus:ring-2 focus:ring-[var(--color-gradient-mid)] text-sm sm:text-base"
                 />
 
-                <p className="mt-2 text-xs text-black/50 dark:text-white/60 text-left">
+                <p className="text-xs sm:text-sm text-[var(--color-text)] dark:text-[var(--color-textd)] text-left opacity-70">
                   ✨ Quick tip: The more specific, the better!
                 </p>
 
-                <div className="mt-5 text-left">
-                  <p className="text-sm font-medium text-black/70 dark:text-white/70">
-                    Choose your vibe:
-                  </p>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {difficultyOptions.map((option) => {
-                      const isActive = option.value === difficulty;
-                      return (
-                        <button
-                          key={option.value}
-                          type="button"
-                          onClick={() => setDifficulty(option.value)}
-                          aria-pressed={isActive}
-                          className={`rounded-2xl px-4 py-2 text-sm transition border ${
-                            isActive
-                              ? "bg-[#FDAA6B] text-white border-transparent shadow"
-                              : "bg-surface text-black border-black hover:opacity-90 dark:bg-transparent dark:text-white dark:border-white/70"
-                          }`}
-                        >
-                          {option.label}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
+                <DifficultySelector
+                  options={difficultyOptions}
+                  active={difficulty}
+                  onSelect={setDifficulty}
+                  disabled={isLoading}
+                />
 
                 {/* Submit button */}
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="mt-4 w-full md:w-auto inline-flex items-center justify-center gap-2 rounded-2xl px-6 py-3 bg-[#FDAA6B] text-white font-semibold shadow hover:opacity-90 transition disabled:opacity-70 disabled:cursor-not-allowed"
+                  className="rounded-2xl px-6 py-3 
+                  bg-[var(--color-button)] 
+                  hover:bg-[var(--color-button-hl)] 
+                  text-white text-sm sm:text-base font-semibold 
+                  shadow transition 
+                  hover:opacity-90 
+                  disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                   {isLoading ? "Cooking ideas..." : "Find Dishes"}
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
-                    <path
-                      d="M5 12h14M13 5l7 7-7 7"
-                      stroke="white"
-                      strokeWidth="1.8"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
                 </button>
               </form>
             </div>
 
           </div>
-          <div className="mt-8">
+          <div className="w-full">
             <IngredientCombos combos={comboSuggestions} onSelect={handleComboClick} />
           </div>
           {/* Account hint */}
-          <p className="mt-10 text-xs text-black/50 dark:text-white/50">
+          <p className="text-xs sm:text-sm text-[var(--color-text)] dark:text-[var(--color-textd)] opacity-60">
             You can browse recipes right away — create an account to save your favorites.
           </p>
         </section>
@@ -308,8 +235,8 @@ export default function HomePage() {
       {/* ──────────────────────────────
           FOOTER
       ────────────────────────────── */}
-      <footer className="border-t border-[var(--color-border)]">
-        <div className="mx-auto max-w-5xl px-6 py-6 text-center text-sm text-black/50 dark:text-white/50">
+      <footer className="border-t border-default mt-auto">
+        <div className="mx-auto max-w-5xl px-4 sm:px-6 py-6 text-center text-xs sm:text-sm text-[var(--color-text)] dark:text-[var(--color-textd)] opacity-60">
           © {new Date().getFullYear()} FridgeChef • Made to get you out of bed and cooking 🍳
         </div>
       </footer>

@@ -1,85 +1,79 @@
 @import "tailwindcss";
 
-/* 🌗 Theme Variables */
-@theme {
-  /* ─────── LIGHT MODE ─────── */
-  --color-bg: hsl(32, 40%, 95%);        /* main background */
-  --color-surface: hsl(0, 0%, 100%);     /* cards, containers */
-  --color-muted: hsl(210, 20%, 90%);
-  --color-heading: hsl(0, 0%, 0%);
-  --color-heading-hl: hsl(211, 48%, 60%);
+/* 🌗 THEME VARIABLES — Tailwind v4 compatible */
+
+/* Light mode (default) */
+:root {
+  --color-bg: #ffeada ;
+  --color-surface: hsl(0, 0%, 100%);
   --color-text: hsl(222, 47%, 11%);
-  --color-accent: hsl(221, 83%, 53%);
-  --color-border: hsl(0, 0%, 90%);
+  --color-border: hsl(0, 0%, 85%);
+  --color-heading: hsl(0, 0%, 0%);
   --color-gradient-start: #6FA6E8;
   --color-gradient-mid: #5A8BD9;
   --color-gradient-end: #355CA8;
-
-  /* ─────── DARK MODE ─────── */
-  --dark-color-bg: hsl(222, 47%, 8%);
-  --dark-color-surface: hsl(222, 47%, 13%);
-  --dark-color-muted: hsl(222, 47%, 20%);
-  --dark-color-heading: hsl(32, 100%, 93%);
-  --dark-color-heading-hl: hsl(211, 60%, 70%);
-  --dark-color-text: hsl(110, 100%, 95%);
-  --dark-color-accent: hsl(221, 83%, 65%);
-  --dark-color-border: hsl(222, 47%, 25%);
-  --dark-color-gradient-start: #1B2947;
-  --dark-color-gradient-mid: #233660;
-  --dark-color-gradient-end: #355CA8;
+  --color-button: #FDAA6B; 
+  --color-button-hl: #ffb781; 
+  --color-white: #ffffff; 
+  
 }
 
-/* ─────── LIGHT MODE (default) ─────── */
-:root {
-  color-scheme: light;
+/* Dark mode */
+html.dark {
+  --color-bgd: hsl(222, 47%, 8%);
+  --color-surfaced: hsl(222, 47%, 13%);
+  --color-textd: hsl(0, 0%, 100%);
+  --color-borderd: hsl(222, 47%, 25%);
+  --color-headingd: hsl(32, 100%, 93%);
+  --color-gradient-startd: #1B2947;
+  --color-gradient-midd: #233660;
+  --color-gradient-endd: #355CA8;
+  --color-button: #FDAA6B; 
+  --color-button-hl: #ffb781; 
+  --color-white: #ffffff; 
+  
+}
+
+body {
   background-color: var(--color-bg);
   color: var(--color-text);
+  font-family: var(--font-sans, system-ui);
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* ─────── DARK MODE ─────── */
-html.dark {
-  color-scheme: dark;
-  background-color: var(--dark-color-bg);
-  color: var(--dark-color-text);
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-/* ─────── BASE STYLING ─────── */
-body {
-  @apply font-sans antialiased;
-}
-
-/* Example utilities */
-.bg-surface {
-  background-color: var(--color-surface);
-}
-html.dark .bg-surface {
-  background-color: var(--dark-color-surface);
+html.dark body {
+  background-color: var(--color-bgd);
+  color: var(--color-textd);
 }
 
 .bg-app {
   background-color: var(--color-bg);
 }
 html.dark .bg-app {
-  background-color: var(--dark-color-bg);
+  background-color: var(--color-bgd);
 }
 
-.bg-chip {
-  background-color: rgba(253, 170, 107, 0.18);
+.bg-surface {
+  background-color: var(--color-surface);
 }
-html.dark .bg-chip {
-  background-color: rgba(253, 170, 107, 0.28);
+html.dark .bg-surface {
+  background-color: var(--color-surfaced);
+}
+
+.border-default {
+  border-color: var(--color-border);
+}
+html.dark .border-default {
+  border-color: var(--color-borderd);
 }
 
 .text-heading {
   color: var(--color-heading);
 }
 html.dark .text-heading {
-  color: var(--dark-color-heading);
+  color: var(--color-headingd);
 }
 
-/* Gradient helper */
 .bg-gradient-main {
   background-image: linear-gradient(
     to bottom right,
@@ -91,8 +85,42 @@ html.dark .text-heading {
 html.dark .bg-gradient-main {
   background-image: linear-gradient(
     to bottom right,
-    var(--dark-color-gradient-start),
-    var(--dark-color-gradient-mid),
-    var(--dark-color-gradient-end)
+    var(--color-gradient-startd),
+    var(--color-gradient-midd),
+    var(--color-gradient-endd)
   );
+}
+
+.btn-difficulty {
+  border-radius: 9999px;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  border-width: 1px;
+}
+
+.btn-difficulty-inactive {
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+html.dark .btn-difficulty-inactive {
+  background-color: transparent;
+  color: var(--color-textd);
+  border-color: var(--color-borderd);
+}
+
+.btn-difficulty-active {
+  background-color: #FDAA6B;
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 12px 24px rgba(253, 170, 107, 0.32);
+}
+
+.btn-difficulty:hover {
+  transform: translateY(-1px);
 }
