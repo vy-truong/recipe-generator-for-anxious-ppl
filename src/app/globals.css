@@ -15,6 +15,10 @@
   --color-button: #FDAA6B; 
   --color-button-hl: #ffb781; 
   --color-white: #ffffff; 
+
+  --color-gradient-orange-start: #FDAA6B; /* warm orange base */
+  --color-gradient-orange-mid: #FFB781;   /* lighter orange highlight */
+  --color-gradient-orange-end: #E6823E;   /* deeper orange tone for contrast */
   
 }
 
@@ -31,6 +35,10 @@ html.dark {
   --color-button: #FDAA6B; 
   --color-button-hl: #ffb781; 
   --color-white: #ffffff; 
+  
+  --color-gradient-orange-startd: #FDAA6B; /* warm orange base */
+  --color-gradient-orange-midd: #FFB781;   /* lighter orange highlight */
+  --color-gradient-orange-endd: #E6823E;   /* deeper orange tone for contrast */
   
 }
 
@@ -74,6 +82,7 @@ html.dark .text-heading {
   color: var(--color-headingd);
 }
 
+/* main */
 .bg-gradient-main {
   background-image: linear-gradient(
     to bottom right,
@@ -90,6 +99,26 @@ html.dark .bg-gradient-main {
     var(--color-gradient-endd)
   );
 }
+
+
+.bg-gradient-second {
+  background-image: linear-gradient(
+    to bottom right,
+    var(--color-gradient-orange-start),
+    var(--color-gradient-orange-mid),
+    var(--color-gradient-orange-end)
+  );
+}
+
+html.dark .bg-gradient-second {
+  background-image: linear-gradient(
+    to bottom right,
+    var(--color-gradient-orange-startd),
+    var(--color-gradient-orange-midd),
+    var(--color-gradient-orange-endd)
+  );
+}
+
 
 .btn-difficulty {
   border-radius: 9999px;

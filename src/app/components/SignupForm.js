@@ -135,9 +135,33 @@ export default function SignupForm({ onSubmit }) {
         setErrorMessage(error.message ?? "Unable to sign up. Please try again.");
         console.error("[SignupForm] Supabase signUp error", error);
       } else {
+        console.log("[SignupForm] Supabase signUp success", data);
+
+        const newUserId = data?.user?.id;
+        if (newUserId) {
+          const profilePayload = {
+            id: newUserId,
+            first_name: sanitizePlainText(payload.firstName),
+            last_name: sanitizePlainText(payload.lastName),
+            username: sanitizeUsername(payload.username),
+            gender: payload.gender,
+            birthday: payload.dayOfBirth || null,
+          };
+
+          const { error: profileError } = await supabase.from("users").insert([profilePayload]);
+
+          if (profileError) {
+            console.error("[SignupForm] Failed to create user profile", profileError);
+            addToast({ type: "error", message: "Profile setup incomplete. Please contact support." });
+          } else {
+            console.log("[SignupForm] User profile created", profilePayload);
+          }
+        } else {
+          console.warn("[SignupForm] Missing user ID after signup" );
+        }
+
         await supabase.auth.signOut();
         addToast({ type: "success", message: "Account created! Please check your email and log in." });
-        console.log("[SignupForm] Supabase signUp success", data);
         if (onSubmit) {
           onSubmit(payload);
         }

@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import ThemeToggle from "../components/ThemeToggle";
+import AppHeader from "../components/AppHeader";
+import MainSidebar from "../components/MainSidebar";
 
 const STORAGE_KEY = "fridgechef-results";
 
@@ -56,35 +57,11 @@ export default function ResultsPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-app text-[var(--color-text)] dark:text-[var(--color-textd)]">
-      <header className="border-b border-default bg-app/95 backdrop-blur supports-[backdrop-filter]:bg-app/80 sticky top-0 z-30">
-        <nav className="mx-auto max-w-5xl px-4 sm:px-6 py-3 sm:py-4 flex flex-wrap items-center justify-between gap-3">
-          <button
-            type="button"
-            onClick={() => router.push("/")}
-            className="inline-flex items-center gap-2 text-sm text-[var(--color-text)] dark:text-[var(--color-textd)] opacity-80 hover:text-[var(--color-heading)] dark:hover:text-[var(--color-headingd)]"
-          >
-            <span className="inline-flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full border border-default">
-              ←
-            </span>
-            Try different ingredients
-          </button>
+      <AppHeader />
 
-          <div className="flex items-center gap-3">
-            <ThemeToggle />
-            <div className="hidden sm:flex items-center gap-3">
-              <span className="text-xs uppercase tracking-wide text-[var(--color-text)] dark:text-[var(--color-textd)] opacity-60">
-                Difficulty
-              </span>
-              <span className="inline-flex items-center justify-center rounded-xl border border-default px-3 py-1 text-sm font-semibold">
-                {difficultyLabel || "Custom"}
-              </span>
-            </div>
-          </div>
-        </nav>
-      </header>
-
-      <main className="flex-1">
-        <section className="mx-auto max-w-5xl px-4 sm:px-6 py-10 sm:py-12 lg:py-16">
+      <main className="flex-1 flex">
+        <MainSidebar className="hidden lg:flex" />
+        <section className="flex-1 mx-auto max-w-5xl px-4 sm:px-6 py-10 sm:py-12 lg:py-16">
           <header className="max-w-3xl space-y-4">
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-[var(--color-heading)] dark:text-[var(--color-headingd)]">
               Here’s what you can make! 🎉
@@ -105,6 +82,11 @@ export default function ResultsPage() {
                 ))}
               </div>
             ) : null}
+            {difficultyLabel ? (
+              <p className="text-xs uppercase tracking-wide text-[var(--color-text)] dark:text-[var(--color-textd)] opacity-60">
+                Difficulty: <span className="font-semibold capitalize">{meta.difficulty}</span>
+              </p>
+            ) : null}
           </header>
 
           <div className="mt-10 grid gap-6 sm:grid-cols-2">
@@ -113,6 +95,11 @@ export default function ResultsPage() {
               const totalMinutes =
                 typeof recipe.time?.totalMinutes === "number" ? `${recipe.time.totalMinutes} mins` : null;
               const breakdown = recipe.time?.breakdown;
+              const dishDifficulty = (recipe.difficulty || meta.difficulty || "").toString();
+              const formattedDifficulty =
+                dishDifficulty.length > 0
+                  ? dishDifficulty.charAt(0).toUpperCase() + dishDifficulty.slice(1)
+                  : "";
 
               return (
                 <article
@@ -123,48 +110,43 @@ export default function ResultsPage() {
                     <div className="flex flex-col gap-3">
                       <div>
                         <h2 className="text-lg sm:text-xl font-semibold text-[var(--color-heading)]">{recipe.name}</h2>
-                        <p className="mt-2 text-sm sm:text-base text-[var(--color-text)] dark:text-[var(--color-textd)] opacity-85 leading-relaxed">
+                        <div className="mt-2 text-left text-sm sm:text-base text-[var(--color-text)] dark:text-[var(--color-textd)] opacity-80 space-y-2">
+                          {totalMinutes ? <p>⏱ {totalMinutes}</p> : null}
+                          {breakdown ? <p>🍳 {breakdown}</p> : null}
+                          {recipe.cuisine ? <p>🌍 {recipe.cuisine}</p> : null}
+                          {formattedDifficulty ? <p>🎯 {formattedDifficulty}</p> : null}
+                        </div>
+                        <p className="mt-3 text-sm sm:text-base text-[var(--color-text)] dark:text-[var(--color-textd)] opacity-85 leading-relaxed">
                           {recipe.description}
                         </p>
                       </div>
                     </div>
 
-                    <div className="mt-4 flex flex-wrap items-center gap-2 text-xs font-medium text-[var(--color-text)] dark:text-[var(--color-textd)] opacity-70">
-                      {totalMinutes ? (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-chip px-3 py-1">
-                          ⏱ {totalMinutes}
-                        </span>
-                      ) : null}
-                      {breakdown ? (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-chip px-3 py-1">
-                          🍳 {breakdown}
-                        </span>
-                      ) : null}
-                      {recipe.cuisine ? (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-chip px-3 py-1">
-                          🌍 {recipe.cuisine}
-                        </span>
-                      ) : null}
-                      {Array.isArray(recipe.tags)
-                        ? recipe.tags.map((tag) => (
-                            <span
-                              key={tag}
-                              className="inline-flex items-center gap-1 rounded-full bg-chip px-3 py-1"
-                            >
-                              #{tag}
-                            </span>
-                          ))
-                        : null}
+                    <div className="mt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setExpandedIndex(isExpanded ? null : index)}
+                        className="inline-flex w-full sm:w-auto items-center justify-between rounded-2xl bg-[#FDAA6B] px-5 py-3 text-sm font-semibold text-white shadow hover:opacity-90 transition"
+                      >
+                        {isExpanded ? "Hide preview" : "Quick preview"}
+                        <span className="text-base">{isExpanded ? "↑" : "→"}</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (typeof window !== "undefined") {
+                            sessionStorage.setItem(
+                              "fridgechef-selected",
+                              JSON.stringify({ recipe, meta })
+                            );
+                          }
+                          router.push("/recipe");
+                        }}
+                        className="inline-flex w-full sm:w-auto items-center justify-center rounded-2xl border border-default px-5 py-3 text-sm font-semibold text-[var(--color-heading)] hover:opacity-90 transition"
+                      >
+                        View full recipe
+                      </button>
                     </div>
-
-                    <button
-                      type="button"
-                      onClick={() => setExpandedIndex(isExpanded ? null : index)}
-                      className="mt-6 inline-flex w-full items-center justify-between rounded-2xl bg-[#FDAA6B] px-5 py-3 text-sm font-semibold text-white shadow hover:opacity-90 transition"
-                    >
-                      {isExpanded ? "Hide recipe" : "View recipe"}
-                      <span className="text-base">{isExpanded ? "↑" : "→"}</span>
-                    </button>
                   </div>
 
                   {isExpanded ? (
