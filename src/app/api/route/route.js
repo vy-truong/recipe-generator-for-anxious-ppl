@@ -54,31 +54,32 @@ export async function POST(req) {
     };
 
     const surprisePrompt = `
-      You are FridgeChef, an encouraging culinary mentor. A user has these ingredients available: ${ingredientsList.join(
+      You are FridgeChef - a professional chef, an encouraging culinary mentor guiding a home cook. A user has these ingredients available: ${ingredientsList.join(
         ", "
       )}.
-      They want to be surprised with a variety of recipe challenges.
+      They want to be surprised with a variety of recipe challenges from different cuisines.
 
-      Please produce exactly three recipe objects in valid JSON (no markdown). Requirements:
+      Please produce five to eight recipes objects in valid JSON (no markdown). Requirements:
       - Provide one easy, one medium, and one hard recipe. Set the "difficulty" field accordingly.
       - Respect these time ranges: Easy 10-20 mins, Medium 25-40 mins, Hard 45-70 mins.
       - Use the provided ingredients as the foundation, adding sensible pantry items if necessary.
+      - Write with a friendly, confidence-boosting tone aimed at home cooks.
+      - Write clear, step-by-step cooking instructions in an objective, instructional tone (no first-person language). Use verbs that guide the reader, e.g. 'Slice', 'Whisk', 'Add', 'Cook'."
 
       Each recipe object must include:
       {
         "name": "Dish name",
-        "description": "2–3 sentence preview in a cozy, motivating tone.",
+        "description": "2–3 precise sentences preview the dish in a calm, mindful tone. Focus on freshness, balance, and the sensory rhythm of cooking. Use clean imagery and avoid overstatement. ",
         "difficulty": "easy | medium | hard",
         "time": {
           "totalMinutes": number,
           "breakdown": "Short note describing prep vs cook (e.g., 5 prep / 15 cook)"
         },
-        "cuisine": "Cuisine inspiration (e.g., Asian, Mediterranean)",
-        "tags": ["short descriptive tags", "..."],
+        "cuisine": "Cuisine inspiration from different countries and culture",
         "ingredients": [
-          { "item": "Ingredient name", "quantity": "quantity + unit if possible" }
+          { "item": "Ingredient name", "quantity": "quantity + unit " }
         ],
-        "steps": ["Step-by-step directions written in first-person encouragement"],
+        "steps": [" Write clear, step-by-step cooking instructions in an objective, instructional tone (no first-person language). Use verbs that guide the reader, e.g. 'Slice', 'Whisk', 'Add', 'Cook'.""],
         "proTip": "One sentence tip aligned with the recipe’s difficulty."
       }
 
@@ -95,22 +96,21 @@ export async function POST(req) {
       [
         {
           "name": "Dish name",
-          "description": "2–3 sentence preview that sells the dish in a cozy, motivating tone.",
+          "description": "2–3 precise sentences preview the dish in a calm, mindful tone. Focus on freshness, balance, and the sensory rhythm of cooking. Use clean imagery and avoid overstatement. ",
           "difficulty": "${selectedDifficulty}",
           "time": {
             "totalMinutes": number,
             "breakdown": "Short note describing prep vs cook (e.g., 5 prep / 15 cook)"
           },
-          "cuisine": "Cuisine inspiration (e.g., Asian, Mediterranean)",
-          "tags": ["short descriptive tags", "matching the vibe"],
+          "cuisine": "Cuisine inspiration from different countries and culture",
           "ingredients": [
             {
               "item": "Ingredient name",
-              "quantity": "quantity + unit if possible"
+              "quantity": "quantity + unit"
             }
           ],
           "steps": [
-            "Step-by-step directions written in first-person encouragement"
+            " Write clear, step-by-step cooking instructions in an objective, instructional tone (no first-person language). Use verbs that guide the reader, e.g. 'Slice', 'Whisk', 'Add', 'Cook'.""
           ],
           "proTip": "One sentence tip tailored to ${selectedDifficulty} cooks."
         }
@@ -120,6 +120,8 @@ export async function POST(req) {
       - Total minutes must align with ${difficultyGuidance[selectedDifficulty].time}.
       - Ingredient list should prioritize the provided ingredients and note smart additions when needed.
       - ${difficultyGuidance[selectedDifficulty].tone}
+      - Write with a friendly, confidence-boosting tone aimed at home cooks.
+      - Write clear, step-by-step cooking instructions in an objective, instructional tone (no first-person language). Use verbs that guide the reader, e.g. 'Slice', 'Whisk', 'Add', 'Cook'."
     `;
 
     const prompt = selectedDifficulty === "surprise" ? surprisePrompt : defaultPrompt;
@@ -129,7 +131,24 @@ export async function POST(req) {
       messages: [
         {
           role: "system",
-          content: "You are a helpful AI chef who helps users create recipes from ingredients.",
+          content: `
+            You are FridgeChef — a professional yet warm culinary mentor for home cooks.
+            Your goal is to transform simple ingredients into mouthwatering recipes that are
+            descriptive, approachable, and emotionally engaging.
+
+            Style Guidelines:
+            - Write clearly for everyday home cooks (no jargon).
+            - Use sensory, precise language that evokes smell, texture, and flavor.
+            - Keep descriptions tight: 2–3 sentences max, vivid but realistic.
+            - Write recipe steps in *instructional tone* (no first-person).
+            - Always start steps with a verb (e.g., "Slice", "Whisk", "Bake").
+            - Be warm, encouraging, and confidence-boosting — like a friendly pro chef.
+
+            Output Format Rules:
+            - Always return strictly valid JSON (no markdown, no commentary).
+            - If multiple recipes are requested, return an array of recipe objects.
+            - Each recipe object must follow the provided schema exactly.
+          `,
         },
         { role: "user", content: prompt },
       ],

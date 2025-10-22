@@ -5,10 +5,12 @@ import { Button, Loader } from "@mantine/core";
 import { useRouter } from "next/navigation";
 import AppHeader from "../components/AppHeader";
 import MainSidebar from "../components/MainSidebar";
+import RecipeCard from "../components/RecipeCard";
+import BackLink from "../components/BackLink";
 import { useUser } from "../components/UserContext";
 import supabase from "../config/supabaseClient";
 
-const SELECTED_STORAGE_KEY = "fridgechef-selected";
+const STORAGE_KEY = "fridgechef-results";
 
 export default function MenuPage() {
   const router = useRouter();
@@ -52,23 +54,53 @@ export default function MenuPage() {
     fetchSavedRecipes();
   }, [user]);
 
+  const parseInstructions = (rawInstructions) => {
+    if (!rawInstructions) return {};
+  
+    try {
+      const parsed = JSON.parse(rawInstructions);
+      return {
+        steps: Array.isArray(parsed?.steps) ? parsed.steps : [],
+        breakdown: parsed?.breakdown ?? "",
+        cuisine: parsed?.cuisine ?? "",
+        description: parsed?.description ?? "",
+        tags: parsed?.tags ?? [],
+        prep_time: parsed?.prep_time ?? "",
+        cook_time: parsed?.cook_time ?? "",
+      };
+    } catch {
+      return { steps: [], breakdown: "", cuisine: "", description: "" };
+    }
+  };
+  
+
   const handleViewRecipe = (recipe) => {
     if (!recipe) return;
 
+    const parsedInstructions = parseInstructions(recipe.instructions);
     const hydratedRecipe = {
       recipe: {
         name: recipe.title,
-        description: "Saved recipe",
-        time: { totalMinutes: recipe.estimated_time, breakdown: "" },
+        description: parsedInstructions.description || recipe.description || "Saved recipe",
+        time: { totalMinutes: recipe.estimated_time, breakdown: parsedInstructions.breakdown },
         ingredients: recipe.ingredients ?? [],
-        steps: recipe.instructions ? recipe.instructions.split("\n") : [],
+        steps: parsedInstructions.steps,
         difficulty: recipe.difficulty,
-        cuisine: "",
+        cuisine: parsedInstructions.cuisine,
       },
       meta: { difficulty: recipe.difficulty },
     };
 
-    sessionStorage.setItem(SELECTED_STORAGE_KEY, JSON.stringify(hydratedRecipe));
+    if (typeof window !== "undefined") {
+      const serialized = JSON.stringify(hydratedRecipe);
+      sessionStorage.setItem(STORAGE_KEY, serialized);
+      try {
+        localStorage.setItem(STORAGE_KEY, serialized);
+      } catch (error) {
+        console.warn("[MenuPage] Unable to persist selected recipe", error);
+      }
+    }
+
     router.push("/recipe");
   };
 
@@ -79,13 +111,32 @@ export default function MenuPage() {
         <MainSidebar className="hidden lg:flex" />
         <section className="flex-1 px-4 sm:px-6 py-10 sm:py-12 lg:py-16">
           <div className="mx-auto max-w-4xl">
-            <header className="space-y-2 mb-8">
+            <header className="space-y-3 mb-8">
+              <BackLink href="/results" />
               <h1 className="text-2xl sm:text-3xl font-bold text-[var(--color-heading)] dark:text-[var(--color-headingd)]">
                 My Saved Recipes
               </h1>
               <p className="text-sm sm:text-base opacity-80">
                 Recipes you have saved from the generator appear here.
               </p>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Button
+                  radius="lg"
+                  size="md"
+                  className="bg-[#FDAA6B] hover:bg-[#f68f3c] text-white"
+                  onClick={() => router.push("/results")}
+                >
+                  Add more dishes
+                </Button>
+                <Button
+                  radius="lg"
+                  size="md"
+                  variant="outline"
+                  onClick={() => router.push("/")}
+                >
+                  Generate new dish
+                </Button>
+              </div>
             </header>
 
             {!user?.id ? (
@@ -95,34 +146,39 @@ export default function MenuPage() {
                 <Loader size="sm" /> Loading your recipes…
               </div>
             ) : savedRecipes.length === 0 ? (
-              <p className="text-sm sm:text-base opacity-80">You do not have any saved recipes yet.</p>
+              <div className="space-y-4">
+                <p className="text-sm sm:text-base opacity-80">You do not have any saved recipes yet.</p>
+              </div>
             ) : (
-              <ul className="space-y-4">
-                {savedRecipes.map((recipe) => (
-                  <li
-                    key={recipe.id}
-                    className="bg-surface border border-default rounded-2xl shadow-sm p-5 flex flex-col gap-3"
-                  >
-                    <div>
-                      <h2 className="text-lg sm:text-xl font-semibold text-[var(--color-heading)] dark:text-[var(--color-headingd)]">
-                        {recipe.title}
-                      </h2>
-                      <p className="text-xs sm:text-sm opacity-70 mt-1">
-                        Saved on {new Date(recipe.created_at).toLocaleString()}
-                      </p>
-                    </div>
-                    <div className="flex flex-wrap gap-2 text-xs sm:text-sm opacity-80">
-                      {recipe.estimated_time && <span>⏱ {recipe.estimated_time} mins</span>}
-                      {recipe.difficulty && (
-                        <span>🎯 {recipe.difficulty.charAt(0).toUpperCase() + recipe.difficulty.slice(1)}</span>
-                      )}
-                    </div>
-                    <Button radius="lg" size="sm" variant="outline" onClick={() => handleViewRecipe(recipe)}>
-                      View recipe
-                    </Button>
-                  </li>
-                ))}
-              </ul>
+              <div className="grid gap-6 sm:grid-cols-2">
+                {savedRecipes.map((recipe) => {
+                  const parsedInstructions = parseInstructions(recipe.instructions);
+
+                  return (
+                    <RecipeCard
+                      key={recipe.id}
+                      recipe={{
+                        name: recipe.title,
+                        description: parsedInstructions.description,
+                        estimated_time: recipe.estimated_time,
+                        ingredients: recipe.ingredients,
+                        instructions: parsedInstructions.steps,
+                        breakdown: parsedInstructions.breakdown,
+                        cuisine: parsedInstructions.cuisine,
+                        tags: parsedInstructions.tags,
+                        prep_time: parsedInstructions.prep_time,
+                        cook_time: parsedInstructions.cook_time,
+                        difficulty: recipe.difficulty,
+                      }}
+                      metaDifficulty={recipe.difficulty}
+                      onViewRecipe={() => handleViewRecipe(recipe)}
+                      viewButtonLabel="View recipe"
+                      allowPreviewToggle={false}
+                    />
+
+                  );
+                })}
+              </div>
             )}
 
             {errorMessage && <p className="mt-4 text-sm text-red-500">{errorMessage}</p>}

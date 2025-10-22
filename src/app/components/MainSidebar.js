@@ -6,14 +6,19 @@ import { Stack, Burger } from "@mantine/core";
 import { BiSolidFoodMenu } from "react-icons/bi";
 import { CgProfile } from "react-icons/cg";
 import { IoIosSettings } from "react-icons/io";
+import { IoMdHome } from "react-icons/io";
+import { TiUserAdd } from "react-icons/ti";
+import { MdOutlineWavingHand } from "react-icons/md";
 
 // ────────────────────────────────────────────────
 // Menu links array with icon + label
 // ────────────────────────────────────────────────
 const menuLinks = [
+  { href: "/", label: "Home", icon: <IoMdHome /> },
   { href: "/menu", label: "My Menu", icon: <BiSolidFoodMenu /> },
   { href: "/profile", label: "My Profile", icon: <CgProfile /> },
-  { href: "/settings", label: "Settings", icon: <IoIosSettings /> },
+  { href: "/signup", label: "Sign Up", icon: <TiUserAdd /> },
+  { href: "/login", label: "Log In", icon: < MdOutlineWavingHand /> },
 ];
 
 export default function MainSidebar({ className = "" }) {

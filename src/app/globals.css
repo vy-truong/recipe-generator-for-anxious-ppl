@@ -4,7 +4,7 @@
 
 /* Light mode (default) */
 :root {
-  --color-bg: #ffeada ;
+  --color-bg: #ffeecd ;
   --color-surface: hsl(0, 0%, 100%);
   --color-text: hsl(222, 47%, 11%);
   --color-border: hsl(0, 0%, 85%);
