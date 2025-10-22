@@ -3,7 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Burger, Drawer } from "@mantine/core";
+import { usePathname } from "next/navigation";
 import ThemeToggle from "./ThemeToggle";
+import { useUser } from "./UserContext";
 
 const navigationLinks = [
   { href: "/login", label: "Log in" },
@@ -12,9 +14,20 @@ const navigationLinks = [
 
 export default function AppHeader() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const pathname = usePathname() || "/";
+  const { setRedirectPath } = useUser();
 
   const closeDrawer = () => {
     setIsDrawerOpen(false);
+  };
+
+  const handleAuthLinkClick = (href) => {
+    if (href === "/login") {
+      setRedirectPath(pathname === "/login" ? "/" : pathname);
+    }
+    if (href === "/signup") {
+      setRedirectPath("/login");
+    }
   };
 
   return (
@@ -33,6 +46,7 @@ export default function AppHeader() {
               key={href}
               href={href}
               className="rounded-xl px-3 py-2 text-sm border border-default bg-surface hover:opacity-90 transition"
+              onClick={() => handleAuthLinkClick(href)}
             >
               {label}
             </Link>
@@ -70,7 +84,10 @@ export default function AppHeader() {
             <Link
               key={href}
               href={href}
-              onClick={closeDrawer}
+              onClick={() => {
+                handleAuthLinkClick(href);
+                closeDrawer();
+              }}
               className="rounded-xl px-4 py-3 text-base border border-default bg-surface hover:opacity-90 transition text-center"
             >
               {label}

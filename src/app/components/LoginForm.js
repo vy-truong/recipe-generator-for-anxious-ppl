@@ -1,101 +1,132 @@
 "use client";
 
+// React imports
 import { useState } from "react";
-import { Alert, Button, Paper, PasswordInput, Stack, Text, TextInput, Title } from "@mantine/core";
+// Mantine UI imports
+import {
+  Alert,
+  Button,
+  Paper,
+  PasswordInput,
+  Stack,
+  Text,
+  TextInput,
+  Title,
+} from "@mantine/core";
+// Supabase client import
 import supabase from "../config/supabaseClient";
-
-const usernameRegex = /^[a-zA-Z0-9._-]+$/;
-const passwordRegex = /^[a-zA-Z0-9]+$/;
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-const sanitizeIdentifier = (value) => value.replace(/\s+/g, "").trim();
-const sanitizePassword = (value) => value.replace(/[^a-zA-Z0-9]/g, "").trim();
+import { useToast } from "./ToastContext";
+import { useUser } from "./UserContext";
 
 export default function LoginForm({ onSuccess }) {
-  const [identifier, setIdentifier] = useState("");
-  const [password, setPassword] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  // ──────────────────────────────
+  // STEP 1: Declare states
+  // ──────────────────────────────
+  const [email, setEmail] = useState(""); // store user's email input
+  const [password, setPassword] = useState(""); // store user's password input
+  const [errorMessage, setErrorMessage] = useState(""); // display error message
+  const [isSubmitting, setIsSubmitting] = useState(false); // disable button while submitting
+  const { addToast } = useToast();
+  const { refreshUser } = useUser();
 
-  const validateIdentifier = (value) => {
-    if (emailRegex.test(value)) return { type: "email", value };
-    if (usernameRegex.test(value)) return { type: "username", value };
-    return null;
-  };
+  // ──────────────────────────────
+  // STEP 2: Helper validation functions
+  // ──────────────────────────────
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+  const sanitizeEmail = (value) => value.trim(); // removes spaces
+  const sanitizePassword = (value) => value.trim(); // only trim (don’t remove symbols!)
+
+  // ──────────────────────────────
+  // STEP 3: Handle form submission
+  // ──────────────────────────────
   const handleSubmit = async (event) => {
     event.preventDefault();
-    setErrorMessage("");
+    setErrorMessage(""); // clear previous errors
 
-    const sanitizedIdentifier = sanitizeIdentifier(identifier);
+    const sanitizedEmail = sanitizeEmail(email);
     const sanitizedPassword = sanitizePassword(password);
 
-    const identifierResult = validateIdentifier(sanitizedIdentifier);
-    if (!identifierResult) {
-      setErrorMessage("Enter a valid email or username.");
+    // Validate email
+    if (!emailRegex.test(sanitizedEmail)) {
+      setErrorMessage("Enter a valid email address.");
       return;
     }
 
-    if (!sanitizedPassword || sanitizedPassword.length < 8 || !passwordRegex.test(sanitizedPassword)) {
-      setErrorMessage("Password must be at least 8 letters or numbers.");
+    // Validate password
+    if (!sanitizedPassword || sanitizedPassword.length < 8) {
+      setErrorMessage("Password must be at least 8 characters.");
       return;
     }
 
     setIsSubmitting(true);
 
     try {
-      let authResponse;
+      // Attempt to sign in user with Supabase
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: sanitizedEmail,
+        password: sanitizedPassword,
+      });
 
-      if (identifierResult.type === "email") {
-        authResponse = await supabase.auth.signInWithPassword({
-          email: identifierResult.value,
-          password: sanitizedPassword,
-        });
-      } else {
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email: `${identifierResult.value}@placeholder.local`,
-          password: sanitizedPassword,
-        });
-        authResponse = { data, error };
-      }
+      console.log("[LoginForm] authResponse:", { data, error });
 
-      if (authResponse.error) {
-        setErrorMessage(authResponse.error.message || "Unable to log in. Please check your credentials.");
+      if (error) {
+        const message = error.message || "Login failed. Check your credentials.";
+        setErrorMessage(message);
+        addToast({ type: "error", message });
       } else {
-        if (onSuccess) onSuccess(authResponse.data);
+        // Trigger callback when successful
+        await refreshUser();
+        addToast({ type: "success", message: "Welcome back! You are now signed in." });
+        if (onSuccess) onSuccess(data);
       }
-    } catch (error) {
-      console.error("[LoginForm] Unexpected error", error);
+    } catch (err) {
+      console.error("[LoginForm] Unexpected error:", err);
       setErrorMessage("Something went wrong. Please try again.");
+      addToast({ type: "error", message: "Something went wrong. Please try again." });
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  // ──────────────────────────────
+  // STEP 4: Render UI
+  // ──────────────────────────────
   return (
-    <Paper component="form" radius="lg" p="xl" withBorder onSubmit={handleSubmit}>
+    <Paper
+      component="form"
+      radius="lg"
+      p="xl"
+      withBorder
+      onSubmit={handleSubmit}
+      shadow="sm"
+    >
       <Stack gap="md">
+        {/* Header */}
         <div>
           <Title order={3}>Welcome back</Title>
           <Text size="sm" c="dimmed">
-            Sign in with your email or username.
+            Sign in to continue cooking!
           </Text>
         </div>
 
-        {errorMessage ? (
+        {/* Error message */}
+        {errorMessage && (
           <Alert color="red" radius="md">
             {errorMessage}
           </Alert>
-        ) : null}
+        )}
 
+        {/* Email input */}
         <TextInput
-          label="Email or username"
-          placeholder="you@example.com or yourusername"
-          value={identifier}
-          onChange={(event) => setIdentifier(event.currentTarget.value)}
+          label="Email address"
+          placeholder="you@example.com"
+          value={email}
+          onChange={(event) => setEmail(event.currentTarget.value)}
           required
         />
 
+        {/* Password input */}
         <PasswordInput
           label="Password"
           placeholder="Your password"
@@ -104,9 +135,25 @@ export default function LoginForm({ onSuccess }) {
           required
         />
 
+        {/* Submit button */}
         <Button type="submit" size="md" radius="lg" loading={isSubmitting}>
           Log in
         </Button>
+
+        {/* Forgot password link */}
+        <Text size="sm" ta="center" mt="sm">
+          Forgot your password?{" "}
+          <a
+            href="/reset-password"
+            style={{
+              color: "var(--color-heading)",
+              textDecoration: "underline",
+              fontWeight: 500,
+            }}
+          >
+            Reset it here
+          </a>
+        </Text>
       </Stack>
     </Paper>
   );

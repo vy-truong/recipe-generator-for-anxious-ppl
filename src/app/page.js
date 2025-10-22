@@ -1,7 +1,7 @@
 "use client";
 
 // React imports
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import AppHeader from "./components/AppHeader";
 import IngredientCombos from "./components/IngredientCombos";
@@ -9,9 +9,11 @@ import IngredientExamples from "./components/IngredientExamples";
 import DifficultySelector from "./components/DifficultySelector";
 import { comboSuggestions } from "./data/ingredients";
 import supabase from "./config/supabaseClient"; // import the supabase client (future use for saving data)
+import { useUser } from "./components/UserContext";
 
 export default function HomePage() {
   const router = useRouter();
+  const { user } = useUser();
   // ──────────────────────────────
   // STEP 1: DECLARE STATES
   // ──────────────────────────────
@@ -24,7 +26,20 @@ export default function HomePage() {
   // Store selected difficulty level
   const [difficulty, setDifficulty] = useState("easy");
 
-  console.log("[HomePage] Render", { difficulty, isLoading, userIngredientsLength: userIngredients.length });
+  console.log("[HomePage] Render", {
+    difficulty,
+    isLoading,
+    userIngredientsLength: userIngredients.length,
+    userId: user?.id,
+  });
+
+  const userFirstName = useMemo(() => {
+    const raw = user?.user_metadata?.first_name || user?.email?.split("@")[0] || "friend";
+    return raw.replace(/[^a-zA-Z\s-]/g, " ").trim() || "friend";
+  }, [user]);
+  const headingText = user
+    ? `Hi ${userFirstName}, what’s in your fridge today?`
+    : "What’s in your fridge?";
 
   const difficultyOptions = [
     { value: "easy", label: "Easy" },
@@ -162,7 +177,7 @@ export default function HomePage() {
 
           {/* Main heading */}
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-heading dark:text-[var(--color-textd)]">
-            What’s in your fridge?
+            {headingText}
           </h1>
 
           {/* Subheading / description */}

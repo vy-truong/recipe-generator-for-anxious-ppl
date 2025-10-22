@@ -1,10 +1,28 @@
 "use client";
 
+import { useEffect } from "react";
 import AppHeader from "../components/AppHeader";
 import BackLink from "../components/BackLink";
 import LoginForm from "../components/LoginForm";
+import { useUser } from "../components/UserContext";
 
 export default function LoginPage() {
+  const { setRedirectPath } = useUser();
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const origin = window.location.origin;
+    let target = "/";
+    const referrer = document.referrer;
+    if (referrer && referrer.startsWith(origin)) {
+      const path = referrer.slice(origin.length) || "/";
+      if (!path.startsWith("/login") && !path.startsWith("/signup")) {
+        target = path;
+      }
+    }
+    setRedirectPath(target);
+  }, [setRedirectPath]);
+
   return (
     <div className="min-h-screen flex flex-col bg-app">
       <AppHeader />

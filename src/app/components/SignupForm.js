@@ -14,6 +14,7 @@ import {
   Title,
 } from "@mantine/core";
 import supabase from "../config/supabaseClient";
+import { useToast } from "./ToastContext";
 
 const genderOptions = [
   { value: "male", label: "Male" },
@@ -49,8 +50,8 @@ export default function SignupForm({ onSubmit }) {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
   const [fieldErrors, setFieldErrors] = useState({});
+  const { addToast } = useToast();
 
   const handleChange = (field) => (value) => {
     setFormValues((current) => ({ ...current, [field]: value ?? "" }));
@@ -76,7 +77,6 @@ export default function SignupForm({ onSubmit }) {
   const handleFormSubmit = async (event) => {
     event.preventDefault();
     setErrorMessage("");
-    setSuccessMessage("");
     const errors = {};
 
     if (!nameRegex.test(formValues.firstName)) {
@@ -132,10 +132,11 @@ export default function SignupForm({ onSubmit }) {
       });
 
       if (error) {
-        setErrorMessage(error.message);
+        setErrorMessage(error.message ?? "Unable to sign up. Please try again.");
         console.error("[SignupForm] Supabase signUp error", error);
       } else {
-        setSuccessMessage("Please check your email to confirm your account.");
+        await supabase.auth.signOut();
+        addToast({ type: "success", message: "Account created! Please check your email and log in." });
         console.log("[SignupForm] Supabase signUp success", data);
         if (onSubmit) {
           onSubmit(payload);
@@ -162,12 +163,6 @@ export default function SignupForm({ onSubmit }) {
         {errorMessage ? (
           <Alert color="red" radius="md">
             {errorMessage}
-          </Alert>
-        ) : null}
-
-        {successMessage ? (
-          <Alert color="green" radius="md">
-            {successMessage}
           </Alert>
         ) : null}
 

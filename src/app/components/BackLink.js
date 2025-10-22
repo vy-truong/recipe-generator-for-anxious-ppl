@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useMemo } from "react";
+import { FaArrowLeft } from "react-icons/fa6";
 
 /**
  * BackLink renders a simple back arrow. It uses `usePathname` to determine a sensible default.
@@ -21,7 +22,9 @@ export default function BackLink({ href }) {
       href={targetHref}
       className="inline-flex items-center gap-2 text-sm text-[var(--color-text)] dark:text-[var(--color-textd)] hover:text-[var(--color-heading)] dark:hover:text-[var(--color-headingd)] transition"
     >
-      <span className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-default">←</span>
+      <button className="inline-flex h-8 w-8 bg-[var(--color-white)] items-center justify-center rounded-full border border-default">
+        <FaArrowLeft size={15} />
+      </button>
       Back
     </Link>
   );

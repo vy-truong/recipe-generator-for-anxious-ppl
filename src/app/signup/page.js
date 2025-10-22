@@ -3,8 +3,15 @@
 import AppHeader from "../components/AppHeader";
 import BackLink from "../components/BackLink";
 import SignupForm from "../components/SignupForm";
+import { useRouter } from "next/navigation";
 
 export default function SignupPage() {
+  const router = useRouter();
+
+  const handleSuccess = () => {
+    router.push("/login");
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-app">
       <AppHeader />
@@ -18,7 +25,7 @@ export default function SignupPage() {
             <div className="w-full lg:w-1/2 flex items-center justify-center px-4 sm:px-8 py-10 sm:py-14 lg:py-16 bg-surface/90 lg:bg-surface">
               <div className="w-full max-w-md scale-[1.2] space-y-6">
                 <BackLink />
-                <SignupForm />
+                <SignupForm onSuccess={handleSuccess} />
               </div>
             </div>
 
