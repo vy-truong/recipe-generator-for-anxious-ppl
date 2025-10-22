@@ -151,11 +151,20 @@ export default function SignupForm({ onSubmit }) {
   };
 
   return (
-    <Paper component="form" radius="lg" p="xl" withBorder onSubmit={handleFormSubmit}>
+    <Paper
+      component="form"
+      radius="lg"
+      p="xl"
+      withBorder
+      onSubmit={handleFormSubmit}
+      className="bg-surface text-[var(--color-text)] dark:text-[var(--color-textd)]"
+    >
       <Stack gap="md">
         <div>
-          <Title order={3}>Create your account</Title>
-          <Text size="sm" c="dimmed">
+          <Title order={3} className="text-[var(--color-heading)] dark:text-[var(--color-headingd)]">
+            Create your account
+          </Title>
+          <Text size="sm" className="text-[var(--color-text)] dark:text-[var(--color-textd)] opacity-70">
             Sign up to access your saved recipe anywhere.
           </Text>
         </div>
@@ -234,6 +243,17 @@ export default function SignupForm({ onSubmit }) {
         <Button type="submit" size="md" radius="lg" loading={isSubmitting}>
           Sign up
         </Button>
+
+        {/* alr have acc link */}
+        <Text size="sm" ta="center" mt="sm">
+          Already have an account ?{" "}
+          <a
+            href="/login"
+            className="underline font-semibold transition hover:text-[var(--color-blue)]"
+          >
+            Log in here
+          </a>
+        </Text>
       </Stack>
     </Paper>
   );

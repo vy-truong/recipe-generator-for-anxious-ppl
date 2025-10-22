@@ -5,7 +5,6 @@ import Link from "next/link";
 import { Stack, Burger } from "@mantine/core";
 import { BiSolidFoodMenu } from "react-icons/bi";
 import { CgProfile } from "react-icons/cg";
-import { IoIosSettings } from "react-icons/io";
 import { IoMdHome } from "react-icons/io";
 import { TiUserAdd } from "react-icons/ti";
 import { MdOutlineWavingHand } from "react-icons/md";
@@ -13,17 +12,18 @@ import { MdOutlineWavingHand } from "react-icons/md";
 // ────────────────────────────────────────────────
 // Menu links array with icon + label
 // ────────────────────────────────────────────────
-const menuLinks = [
+export const sidebarLinks = [
   { href: "/", label: "Home", icon: <IoMdHome /> },
   { href: "/menu", label: "My Menu", icon: <BiSolidFoodMenu /> },
   { href: "/profile", label: "My Profile", icon: <CgProfile /> },
   { href: "/signup", label: "Sign Up", icon: <TiUserAdd /> },
-  { href: "/login", label: "Log In", icon: < MdOutlineWavingHand /> },
+  { href: "/login", label: "Log In", icon: <MdOutlineWavingHand /> },
 ];
 
 export default function MainSidebar({ className = "" }) {
   const [open, setOpen] = useState(true);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isLargeScreen, setIsLargeScreen] = useState(false);
 
   // ──────────────────────────────────────────────
   // Detect current theme from <html class="dark">
@@ -46,6 +46,25 @@ export default function MainSidebar({ className = "" }) {
     });
 
     return () => observer.disconnect();
+  }, []);
+
+  // ──────────────────────────────────────────────
+  // Track viewport width to keep the sidebar open
+  // only on large screens, and close it elsewhere
+  // ──────────────────────────────────────────────
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(min-width: 1024px)");
+
+    const handleMediaChange = (event) => {
+      setIsLargeScreen(event.matches);
+      setOpen(event.matches);
+    };
+
+    setIsLargeScreen(mediaQuery.matches);
+    setOpen(mediaQuery.matches);
+
+    mediaQuery.addEventListener("change", handleMediaChange);
+    return () => mediaQuery.removeEventListener("change", handleMediaChange);
   }, []);
 
   // ──────────────────────────────────────────────
@@ -84,7 +103,7 @@ export default function MainSidebar({ className = "" }) {
 
             {/* Menu Links */}
             <Stack gap="sm">
-              {menuLinks.map(({ href, label, icon }) => (
+              {sidebarLinks.map(({ href, label, icon }) => (
                 <Link
                   key={href}
                   href={href}

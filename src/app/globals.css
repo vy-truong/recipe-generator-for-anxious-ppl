@@ -15,10 +15,13 @@
   --color-button: #FDAA6B; 
   --color-button-hl: #ffb781; 
   --color-white: #ffffff; 
+  --color-blue: #5A8BD9;
 
   --color-gradient-orange-start: #FDAA6B; /* warm orange base */
   --color-gradient-orange-mid: #FFB781;   /* lighter orange highlight */
   --color-gradient-orange-end: #E6823E;   /* deeper orange tone for contrast */
+
+
   
 }
 
@@ -35,6 +38,7 @@ html.dark {
   --color-button: #FDAA6B; 
   --color-button-hl: #ffb781; 
   --color-white: #ffffff; 
+  --color-blue: #5A8BD9;
   
   --color-gradient-orange-startd: #FDAA6B; /* warm orange base */
   --color-gradient-orange-midd: #FFB781;   /* lighter orange highlight */

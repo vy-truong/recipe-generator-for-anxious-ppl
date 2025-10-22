@@ -7,10 +7,10 @@ export default function ThemeToggle() {
   useEffect(() => {
     try {
       const saved = localStorage.getItem("theme");
-      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      const darkMode = saved ? saved === "dark" : prefersDark;
+      const darkMode = saved ? saved === "dark" : true;
       setIsDark(darkMode);
       document.documentElement.classList.toggle("dark", darkMode);
+      if (!saved) localStorage.setItem("theme", darkMode ? "dark" : "light");
       console.log(`[ThemeToggle] Initialized -> ${darkMode ? "dark" : "light"}`);
     } catch (error) {
       console.error("[ThemeToggle] Failed to initialize theme:", error);

@@ -100,12 +100,15 @@ export default function LoginForm({ onSuccess }) {
       withBorder
       onSubmit={handleSubmit}
       shadow="sm"
+      className="bg-surface text-[var(--color-text)] dark:text-[var(--color-textd)]"
     >
       <Stack gap="md">
         {/* Header */}
         <div>
-          <Title order={3}>Welcome back</Title>
-          <Text size="sm" c="dimmed">
+          <Title order={3} className="text-[var(--color-heading)] dark:text-[var(--color-headingd)]">
+            Welcome back
+          </Title>
+          <Text size="sm" className="text-[var(--color-text)] dark:text-[var(--color-textd)] opacity-70">
             Sign in to continue cooking!
           </Text>
         </div>
@@ -145,13 +148,20 @@ export default function LoginForm({ onSuccess }) {
           Forgot your password?{" "}
           <a
             href="/reset-password"
-            style={{
-              color: "var(--color-heading)",
-              textDecoration: "underline",
-              fontWeight: 500,
-            }}
+            className="underline font-semibold transition hover:text-[var(--color-blue)]"
           >
             Reset it here
+          </a>
+        </Text>
+
+        {/* doesnt have account yet link */}
+        <Text size="sm" ta="center">
+          Still haven’t got an account ?{" "}
+          <a
+            href="/signup"
+            className=" underline font-semibold transition hover:text-[var(--color-blue)]"
+          >
+            Sign up here
           </a>
         </Text>
       </Stack>
