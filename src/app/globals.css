@@ -27,22 +27,22 @@
 
 /* Dark mode */
 html.dark {
-  --color-bgd: hsl(222, 47%, 8%);
-  --color-surfaced: hsl(222, 47%, 13%);
-  --color-textd: hsl(0, 0%, 100%);
-  --color-borderd: hsl(222, 47%, 25%);
-  --color-headingd: hsl(32, 100%, 93%);
-  --color-gradient-startd: #1B2947;
-  --color-gradient-midd: #233660;
-  --color-gradient-endd: #355CA8;
+  --color-bg: hsl(222, 47%, 8%);
+  --color-surface: hsl(222, 47%, 13%);
+  --color-text: hsl(0, 0%, 100%);
+  --color-border: hsl(222, 47%, 25%);
+  --color-heading: hsl(32, 100%, 93%);
+  --color-gradient-start: #1B2947;
+  --color-gradient-mid: #233660;
+  --color-gradient-end: #355CA8;
   --color-button: #FDAA6B; 
   --color-button-hl: #ffb781; 
   --color-white: #ffffff; 
   --color-blue: #5A8BD9;
   
-  --color-gradient-orange-startd: #FDAA6B; /* warm orange base */
-  --color-gradient-orange-midd: #FFB781;   /* lighter orange highlight */
-  --color-gradient-orange-endd: #E6823E;   /* deeper orange tone for contrast */
+  --color-gradient-orange-start: #FDAA6B; /* warm orange base */
+  --color-gradient-orange-mid: #FFB781;   /* lighter orange highlight */
+  --color-gradient-orange-end: #E6823E;   /* deeper orange tone for contrast */
   
 }
 
@@ -54,7 +54,7 @@ body {
 }
 
 html.dark body {
-  background-color: var(--color-bgd);
+  background-color: var(--color-bg);
   color: var(--color-textd);
 }
 
@@ -62,28 +62,28 @@ html.dark body {
   background-color: var(--color-bg);
 }
 html.dark .bg-app {
-  background-color: var(--color-bgd);
+  background-color: var(--color-bg);
 }
 
 .bg-surface {
   background-color: var(--color-surface);
 }
 html.dark .bg-surface {
-  background-color: var(--color-surfaced);
+  background-color: var(--color-surface);
 }
 
 .border-default {
   border-color: var(--color-border);
 }
 html.dark .border-default {
-  border-color: var(--color-borderd);
+  border-color: var(--color-border);
 }
 
 .text-heading {
   color: var(--color-heading);
 }
 html.dark .text-heading {
-  color: var(--color-headingd);
+  color: var(--color-heading);
 }
 
 /* main */
@@ -98,9 +98,9 @@ html.dark .text-heading {
 html.dark .bg-gradient-main {
   background-image: linear-gradient(
     to bottom right,
-    var(--color-gradient-startd),
-    var(--color-gradient-midd),
-    var(--color-gradient-endd)
+    var(--color-gradient-start),
+    var(--color-gradient-mid),
+    var(--color-gradient-end)
   );
 }
 
@@ -117,9 +117,9 @@ html.dark .bg-gradient-main {
 html.dark .bg-gradient-second {
   background-image: linear-gradient(
     to bottom right,
-    var(--color-gradient-orange-startd),
-    var(--color-gradient-orange-midd),
-    var(--color-gradient-orange-endd)
+    var(--color-gradient-orange-start),
+    var(--color-gradient-orange-mid),
+    var(--color-gradient-orange-end)
   );
 }
 
