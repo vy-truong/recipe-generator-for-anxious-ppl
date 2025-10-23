@@ -44,7 +44,10 @@ export default function DeleteAccountSection({
         return;
       }
 
-      await supabase.auth.signOut();
+      const { error: signOutError } = await supabase.auth.signOut();
+      if (signOutError) {
+        console.warn("[DeleteAccountSection] signOut after delete failed", signOutError);
+      }
       await refreshUser();
       addToast({ type: "success", message: "Your account has been deleted." });
       setConfirmOpen(false);
