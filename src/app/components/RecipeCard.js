@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { Modal } from "@mantine/core";
 
 function normalizeDifficulty(value) {
   if (!value) return "";
@@ -30,7 +31,7 @@ export default function RecipeCard({
   allowPreviewToggle = true,
   className = "",
 }) {
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   const totalMinutes = useMemo(() => {
     if (typeof recipe?.time?.totalMinutes === "number") {
@@ -50,7 +51,7 @@ export default function RecipeCard({
 
   return (
     <article
-      className={`rounded-3xl border border-default bg-surface shadow-sm transition hover:-translate-y-1 hover:shadow-lg ${className}`}
+      className={`rounded-3xl border border-default bg-surface dark:bg-gradient-main shadow-sm transition hover:-translate-y-1 hover:shadow-lg ${className}`}
     >
       <div className="p-5 sm:p-6">
         <div className="flex flex-col gap-3">
@@ -86,61 +87,52 @@ export default function RecipeCard({
           {allowPreviewToggle ? (
             <button
               type="button"
-              onClick={() => setIsExpanded((value) => !value)}
+              onClick={() => setIsPreviewOpen(true)}
               className="inline-flex w-full sm:w-auto items-center justify-between rounded-2xl bg-[#FDAA6B] px-5 py-3 text-sm font-semibold text-white shadow hover:opacity-90 transition"
             >
-              {isExpanded ? "Hide preview" : "Quick preview"}
-              <span className="text-base">{isExpanded ? "↑" : "→"}</span>
+              Quick preview
+              <span className="text-base">→</span>
             </button>
           ) : null}
 
           <button
             type="button"
             onClick={onViewRecipe}
-            className="inline-flex w-full sm:w-auto items-center justify-center rounded-2xl border border-default px-5 py-3 text-sm font-semibold text-[var(--color-heading)] hover:opacity-90 transition"
+            className="group relative inline-flex w-full sm:w-auto items-center justify-center rounded-2xl border border-default px-5 py-3 text-sm font-semibold text-[var(--color-heading)] dark:text-[var(--color-headingd)] bg-surface dark:bg-[var(--color-surfaced)] transition focus:outline-none hover:border-[var(--color-heading)] dark:hover:border-[var(--color-headingd)]"
           >
-            {viewButtonLabel}
+            <span className="absolute inset-0 rounded-2xl opacity-0 blur-xl transition duration-300 group-hover:opacity-80 group-hover:bg-white/70 dark:group-hover:bg-[var(--color-headingd)]/35" />
+            <span className="relative">{viewButtonLabel}</span>
           </button>
         </div>
       </div>
 
-      {allowPreviewToggle && isExpanded ? (
-        <div className="border-t border-default bg-surface p-5 sm:p-6">
-          <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-text)] dark:text-[var(--color-textd)] opacity-70">
-              Ingredients
-            </h3>
-              {/* Render each ingredient safely */}
-              <ul className="list-disc pl-6 space-y-3 text-sm sm:text-base">
-                {ingredients.length > 0 ? (
-                  ingredients.map((ingredient, index) => {
-                    // If ingredient is an object with "item" and "quantity"
-                    if (typeof ingredient === "object" && ingredient !== null) {
-                      const name = ingredient.item || "Unknown item";
-                      const quantity = ingredient.quantity ? ` (${ingredient.quantity})` : "";
-                      return <li key={index}>{`${name}${quantity}`}</li>;
-                    }
-                    // Otherwise assume it’s a string
-                    return <li key={index}>{ingredient}</li>;
-                  })
-                ) : (
-                  <li>No ingredients provided.</li>
-                )}
-              </ul>
-          </div>
-
-          <div className="mt-6">
-            <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-text)] dark:text-[var(--color-textd)] opacity-70">
-              Steps
-            </h3>
-            <ol className="mt-3 list-decimal space-y-3 pl-4 sm:pl-5 text-sm leading-relaxed text-[var(--color-text)] dark:text-[var(--color-textd)] opacity-85">
+      <Modal
+        opened={allowPreviewToggle && isPreviewOpen}
+        onClose={() => setIsPreviewOpen(false)}
+        title="Quick preview"
+        centered
+        radius="lg"
+        overlayProps={{ opacity: 0.35, blur: 2 }}
+      >
+        <div className="space-y-6 text-[var(--color-text)] dark:text-[var(--color-textd)]">
+          <section>
+            <h3 className="text-sm font-semibold uppercase tracking-wide opacity-70">Ingredients</h3>
+            <ul className="mt-3 list-disc pl-5 space-y-3 text-sm sm:text-base">
+              {ingredients.length > 0
+                ? ingredients.map((ingredient, index) => <li key={index}>{ingredient}</li>)
+                : <li>No ingredients provided.</li>}
+            </ul>
+          </section>
+          <section>
+            <h3 className="text-sm font-semibold uppercase tracking-wide opacity-70">Steps</h3>
+            <ol className="mt-3 list-decimal pl-5 space-y-3 text-sm leading-relaxed">
               {steps.length > 0
                 ? steps.map((step, index) => <li key={index}>{step}</li>)
                 : <li>No steps provided.</li>}
             </ol>
-          </div>
+          </section>
         </div>
-      ) : null}
+      </Modal>
     </article>
   );
 }

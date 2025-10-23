@@ -19,30 +19,87 @@ function normalizeDifficulty(value) {
 // ──────────────────────────────
 // Convert recipe fields into a clean array of strings
 // ──────────────────────────────
-function toArray(value) {
-  if (Array.isArray(value)) {
-    return value.map((item) => {
-      // If it's already a string, trim it
-      if (typeof item === "string") return item.trim();
+function formatEntry(entry, role) {
+  if (entry == null) return "";
 
-      // If it's an object with {item, quantity}, merge them
-      if (typeof item === "object" && item !== null) {
-        const name = item.item || "";
-        const qty = item.quantity ? ` (${item.quantity})` : "";
-        return `${name}${qty}`.trim();
+  let resolved = entry;
+
+  if (typeof entry === "string") {
+    const trimmed = entry.trim();
+    if (!trimmed) return "";
+
+    // Strings that look like JSON objects are parsed so we can extract fields.
+    if (trimmed.startsWith("{") && trimmed.endsWith("}")) {
+      try {
+        resolved = JSON.parse(trimmed);
+      } catch {
+        // If JSON.parse fails we just return the original string
+        return trimmed;
       }
-
-      // fallback
-      return String(item);
-    });
+    } else {
+      return trimmed;
+    }
   }
 
-  // Handle comma- or newline-separated strings
+  if (typeof resolved === "object") {
+    const candidate =
+      resolved.item ||
+      resolved.name ||
+      resolved.title ||
+      resolved.step ||
+      resolved.instruction ||
+      resolved.text ||
+      "";
+
+    const quantity =
+      resolved.quantity ??
+      resolved.amount ??
+      resolved.measure ??
+      resolved.stepNumber ??
+      resolved.time ??
+      "";
+
+    if (role === "step") {
+      if (typeof resolved === "object") {
+        const pieces = [
+          typeof resolved.stepNumber !== "undefined" ? `Step ${resolved.stepNumber}:` : "",
+          resolved.text || resolved.instruction || resolved.description || candidate,
+        ]
+          .map((piece) => (piece || "").trim())
+          .filter(Boolean);
+
+        return pieces.join(" ");
+      }
+      return String(resolved);
+    }
+
+    if (candidate) {
+      const qtyText = quantity ? ` (${quantity})` : "";
+      return `${candidate}${qtyText}`.trim();
+    }
+  }
+
+  return String(resolved);
+}
+
+function toArray(value, role = "ingredient") {
+  if (Array.isArray(value)) {
+    return value
+      .map((entry) => formatEntry(entry, role))
+      .map((entry) => entry.trim())
+      .filter(Boolean);
+  }
+
   if (typeof value === "string" && value.trim().length > 0) {
     return value
       .split(/\r?\n|,/)
-      .map((item) => item.trim())
+      .map((entry) => formatEntry(entry, role))
+      .map((entry) => entry.trim())
       .filter(Boolean);
+  }
+
+  if (typeof value === "object" && value !== null) {
+    return [formatEntry(value, role)].filter(Boolean);
   }
 
   return [];
@@ -71,8 +128,8 @@ export default function RecipeDetail({
 
   const breakdown = recipe?.time?.breakdown ?? recipe?.breakdown ?? "";
   const difficultyLabel = normalizeDifficulty(recipe?.difficulty || metaDifficulty || "");
-  const ingredients = toArray(recipe?.ingredients);
-  const steps = toArray(recipe?.steps ?? recipe?.instructions);
+  const ingredients = toArray(recipe?.ingredients, "ingredient");
+  const steps = toArray(recipe?.steps ?? recipe?.instructions, "step");
   const router = useRouter();
 
   return (

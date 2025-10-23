@@ -26,6 +26,15 @@ export async function POST(request) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
+    const { error: tableError } = await supabaseAdmin
+      .from("users")
+      .delete()
+      .eq("id", userId);
+
+    if (tableError) {
+      console.warn("[delete-account] Failed to remove profile row", tableError);
+    }
+
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("[delete-account] Unexpected error", error);

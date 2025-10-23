@@ -100,7 +100,7 @@ export async function POST(req) {
           "difficulty": "${selectedDifficulty}",
           "time": {
             "totalMinutes": number,
-            "breakdown": "Short note describing prep vs cook (e.g., 5 prep / 15 cook)"
+            "breakdown": "Short note describing prep vs cook (e.g., prep time / cook time)"
           },
           "cuisine": "Cuisine inspiration from different countries and culture",
           "ingredients": [

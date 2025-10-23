@@ -24,17 +24,21 @@ export default function LoginPage() {
   }, [setRedirectPath]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-app">
+    <div className="min-h-screen flex flex-col bg-app text-[var(--color-text)] dark:text-[var(--color-textd)]">
       <AppHeader />
-      <main className="flex-1 w-full">
+      <main className="flex-1 w-full flex">
         <section className="relative flex-1">
           {/* Mobile/tablet background image overlay */}
-          <div className="absolute inset-0 bg-[url('/img/signup-img1.jpg')] bg-cover bg-center opacity-20 lg:hidden" aria-hidden />
+          <div
+            className="absolute inset-0 bg-[url('/img/signup-img1.jpg')] bg-cover bg-center opacity-25 lg:hidden"
+            aria-hidden
+          />
+
           {/* Desktop layout: 2 equal halves */}
-          <div className="relative z-10 flex flex-col lg:flex-row min-h-screen">
+          <div className="relative z-10 flex flex-col lg:flex-row min-h-[calc(100vh-4rem)]">
             {/* LEFT — FORM */}
-            <div className="w-full lg:w-1/2 flex items-center justify-center px-4 sm:px-8 py-10 sm:py-14 lg:py-16 bg-surface/90 lg:bg-surface">
-              <div className="w-full max-w-md scale-[1.2] space-y-6">
+            <div className="relative flex w-full lg:w-1/2 items-center justify-center px-4 sm:px-6 md:px-10 py-12 lg:py-16">
+              <div className="w-full max-w-md space-y-6 rounded-3xl border border-default bg-surface/95 dark:bg-[var(--color-surfaced)]/95 p-6 sm:p-8 shadow-xl backdrop-blur">
                 <BackLink />
                 <LoginForm />
               </div>

@@ -21,12 +21,14 @@ export default function HomePage() {
   // Store what user typed into the ingredients text area
   const [userIngredients, setUserIngredients] = useState("");
   const [hasSavedResults, setHasSavedResults] = useState(false);
+  const [showIngredientAlert, setShowIngredientAlert] = useState(false);
 
   // Store loading state (true while waiting for AI to respond)
   const [isLoading, setIsLoading] = useState(false);
 
   // Store selected difficulty level
   const [difficulty, setDifficulty] = useState("easy");
+  
 
   console.log("[HomePage] Render", {
     difficulty,
@@ -92,7 +94,7 @@ export default function HomePage() {
     // If text area is empty, stop and warn user
     if (!userIngredients.trim()) {
       console.warn("[HomePage] Submit blocked: no ingredients provided");
-      alert("Please enter your ingredients first 🍳");
+      setShowIngredientAlert(true);
       return;
     }
 
@@ -103,7 +105,7 @@ export default function HomePage() {
 
     if (!ingredientsList.length) {
       console.warn("[HomePage] Submit blocked: ingredient parsing returned empty array");
-      alert("Please list at least one ingredient 🍅");
+      setShowIngredientAlert(true);
       return;
     }
 
@@ -176,6 +178,31 @@ export default function HomePage() {
           TOP NAVBAR SECTION
       ────────────────────────────── */}
       <AppHeader />
+
+      {showIngredientAlert ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 backdrop-blur-sm px-4">
+          <div className="w-full max-w-sm rounded-3xl border border-default bg-surface dark:bg-[var(--color-surfaced)] p-6 shadow-2xl text-center space-y-4">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-gradient-main text-white text-xl shadow">
+              🍊
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold text-[var(--color-heading)] dark:text-[var(--color-headingd)]">
+                Missing ingredients
+              </h2>
+              <p className="mt-2 text-sm text-[var(--color-text)] dark:text-[var(--color-textd)] opacity-85">
+                Please enter at least one ingredient so we can whip up a recipe for you.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowIngredientAlert(false)}
+              className="inline-flex items-center justify-center rounded-2xl bg-[#FDAA6B] hover:bg-[#f68f3c] text-white dark:text-[var(--color-headingd)] font-semibold px-5 py-2 transition shadow"
+            >
+              Got it
+            </button>
+          </div>
+        </div>
+      ) : null}
 
       {/* ──────────────────────────────
           HERO SECTION (CENTER CONTENT)
@@ -251,7 +278,7 @@ export default function HomePage() {
                   hover:opacity-90 
                   disabled:opacity-70 disabled:cursor-not-allowed"
                 >
-                  {isLoading ? "Cooking ideas..." : "Find Dishes"}
+                  {isLoading ? "Moti Chef is looking for recipes..." : "Find Dishes"}
                 </button>
               </form>
             </div>

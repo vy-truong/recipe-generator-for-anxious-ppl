@@ -1,29 +1,45 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { Stack, Burger } from "@mantine/core";
 import { BiSolidFoodMenu } from "react-icons/bi";
-import { CgProfile } from "react-icons/cg";
 import { IoMdHome } from "react-icons/io";
 import { TiUserAdd } from "react-icons/ti";
 import { MdOutlineWavingHand } from "react-icons/md";
+import { HiOutlineLogout } from "react-icons/hi";
+import { TbRefreshAlert } from "react-icons/tb";
+import { RiUserUnfollowLine } from "react-icons/ri";
+import { useUser } from "./UserContext";
 
-// ────────────────────────────────────────────────
-// Menu links array with icon + label
-// ────────────────────────────────────────────────
-export const sidebarLinks = [
-  { href: "/", label: "Home", icon: <IoMdHome /> },
-  { href: "/menu", label: "My Menu", icon: <BiSolidFoodMenu /> },
-  { href: "/profile", label: "My Profile", icon: <CgProfile /> },
-  { href: "/signup", label: "Sign Up", icon: <TiUserAdd /> },
-  { href: "/login", label: "Log In", icon: <MdOutlineWavingHand /> },
-];
+export const buildSidebarLinks = (isAuthenticated) => {
+  const baseLinks = [
+    { href: "/", label: "Home", icon: <IoMdHome /> },
+    { href: "/menu", label: "My Menu", icon: <BiSolidFoodMenu /> },
+  ];
+
+  if (isAuthenticated) {
+    return [
+      ...baseLinks,
+      { href: "/reset-password", label: "Reset Password", icon: <TbRefreshAlert /> },
+      { href: "/delete-account", label: "Delete Account", icon: <RiUserUnfollowLine /> },
+      { href: "/logout", label: "Log Out", icon: <HiOutlineLogout /> },
+    ];
+  }
+
+  return [
+    ...baseLinks,
+    { href: "/signup", label: "Sign Up", icon: <TiUserAdd /> },
+    { href: "/login", label: "Log In", icon: <MdOutlineWavingHand /> },
+  ];
+};
 
 export default function MainSidebar({ className = "" }) {
+  const { user } = useUser();
   const [open, setOpen] = useState(true);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isLargeScreen, setIsLargeScreen] = useState(false);
+  const links = useMemo(() => buildSidebarLinks(Boolean(user)), [user]);
 
   // ──────────────────────────────────────────────
   // Detect current theme from <html class="dark">
@@ -103,7 +119,7 @@ export default function MainSidebar({ className = "" }) {
 
             {/* Menu Links */}
             <Stack gap="sm">
-              {sidebarLinks.map(({ href, label, icon }) => (
+              {links.map(({ href, label, icon }) => (
                 <Link
                   key={href}
                   href={href}
