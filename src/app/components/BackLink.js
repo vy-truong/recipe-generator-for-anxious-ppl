@@ -20,7 +20,8 @@ export default function BackLink({ href }) {
   return (
     <Link
       href={targetHref}
-      className="inline-flex items-center gap-2 cursor-pointer text-sm text-[var(--color-text)] dark:text-[var(--color-text)] hover:text-[var(--color-heading)] dark:hover:text-[var(--color-heading)] transition"
+      className="inline-flex items-center gap-2 cursor-pointer text-sm
+      text-[var(--color-text)] dark:text-[var(--color-text)] hover:text-[var(--color-heading)] dark:hover:text-[var(--color-heading)] transition"
     >
       <button className="inline-flex h-8 w-8   cursor-pointer items-center justify-center rounded-full border border-default">
         <FaArrowLeft size={15} />
