@@ -1,14 +1,17 @@
 "use client";
 
-import { useState } from "react";
-import { Button, Paper, Stack, Text, TextInput, Title } from "@mantine/core";
+import { useState, useEffect } from "react";
 import { useToast } from "./ToastContext";
 import supabase from "../config/supabaseClient";
 
-const DEFAULT_REDIRECT_TO =
-  typeof window !== "undefined"
-    ? `${window.location.origin}/change-password`
-    : "http://localhost:3000/change-password";
+// ✅ dynamically set redirect URL only when in browser
+let DEFAULT_REDIRECT_TO = "";
+if (typeof window !== "undefined") {
+  DEFAULT_REDIRECT_TO = `${window.location.origin}/change-password`;
+} else {
+  // fallback for SSR builds (never used on client)
+  DEFAULT_REDIRECT_TO = "https://your-production-domain.com/change-password";
+}
 
 export default function ResetPasswordForm({
   className = "",
@@ -30,9 +33,14 @@ export default function ResetPasswordForm({
 
     try {
       setIsSubmitting(true);
-      const { error } = await supabase.auth.resetPasswordForEmail(trimmedEmail, {
-        redirectTo,
-      });
+
+      // ✅ Ensure Supabase doesn't receive undefined/empty redirect
+      const safeRedirect = redirectTo || DEFAULT_REDIRECT_TO;
+
+      const { error } = await supabase.auth.resetPasswordForEmail(
+        trimmedEmail,
+        { redirectTo: safeRedirect }
+      );
 
       if (error) {
         console.error("[ResetPasswordForm] Reset request failed", error);
@@ -50,39 +58,59 @@ export default function ResetPasswordForm({
         }
       }
     } catch (error) {
+      // ✅ catch any unexpected JSON.parse or network issue
       console.error("[ResetPasswordForm] Unexpected error", error);
-      addToast({ type: "error", message: "Unexpected error. Please try again." });
+      addToast({
+        type: "error",
+        message: "Something went wrong. Please try again later.",
+      });
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <Paper
-      component="form"
-      radius="lg"
-      p="xl"
-      withBorder
+    <form
       onSubmit={handleSubmit}
-      className={className}
+      className={`w-full max-w-md mx-auto bg-surface border border-default shadow-md rounded-2xl p-6 md:p-8 ${className}`}
     >
-      <Stack gap="md">
-        <Title order={3}>Reset your password</Title>
-        <Text size="sm" c="dimmed">
-          Enter your email address and we will send you a reset link.
-        </Text>
-        <TextInput
-          label="Email"
-          placeholder="you@example.com"
+      <h3 className="text-xl font-semibold mb-2 text-center">
+        Reset your password
+      </h3>
+
+      <p className="text-sm text-muted-foreground mb-6 text-center">
+        Enter your email address and we will send you a reset link.
+      </p>
+
+      <div className="flex flex-col gap-1 mb-5">
+        <label
+          htmlFor="email"
+          className="text-sm font-medium text-foreground/90"
+        >
+          Email
+        </label>
+        <input
+          id="email"
           type="email"
+          placeholder="you@example.com"
           value={email}
-          onChange={(event) => setEmail(event.currentTarget.value)}
+          onChange={(e) => setEmail(e.target.value)}
           required
+          className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition"
         />
-        <Button type="submit" radius="lg" loading={isSubmitting}>
-          Send reset link
-        </Button>
-      </Stack>
-    </Paper>
+      </div>
+
+      <button
+        type="submit"
+        disabled={isSubmitting}
+        className={`w-full py-2.5 rounded-lg text-white font-medium transition ${
+          isSubmitting
+            ? "bg-accent/60 cursor-not-allowed"
+            : "bg-accent hover:bg-accent/90"
+        }`}
+      >
+        {isSubmitting ? "Sending..." : "Send reset link"}
+      </button>
+    </form>
   );
 }
