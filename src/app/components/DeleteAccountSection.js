@@ -89,28 +89,15 @@ export default function DeleteAccountSection() {
 
       </div>
             {/* Mantine Modal (styled to match Tailwind theme + dark mode) */}
-            <Modal
+      <Modal
         opened={confirmOpen}
         onClose={() => setConfirmOpen(false)}
         centered
         radius="lg"
         overlayProps={{ opacity: 0.45, blur: 4 }}
-        classNames={{
-          content:
-            "bg-[var(--color-surface)] dark:bg-[var(--color-surface)] text-[var(--color-text)] dark:text-[var(--color-text)] border border-default shadow-lg rounded-xl transition-colors duration-300",
-          header:
-            "border-b border-default pb-2 mb-3 text-[var(--color-heading)] dark:text-[var(--color-heading)] font-semibold text-base",
-          body: "text-[var(--color-text)] dark:text-[var(--color-text)]",
-          close:
-            "text-[var(--color-text)] dark:text-[var(--color-text)] hover:text-[var(--color-heading)] dark:hover:text-[var(--color-heading)] transition",
-        }}
-        title={
-          <span className="text-[var(--color-heading)] dark:text-[var(--color-heading)] text-base font-semibold">
-            Permanently delete account?
-          </span>
-        }
       >
         <div className="flex flex-col gap-4">
+          <h3>Permanently Delete Account</h3>
           <p className="text-sm text-[var(--color-text)] dark:text-[var(--color-text)] opacity-85">
             This action cannot be undone. Your saved recipes and account details
             will be removed permanently. Are you sure you want to continue?
@@ -121,7 +108,7 @@ export default function DeleteAccountSection() {
               type="button"
               onClick={() => setConfirmOpen(false)}
               disabled={isDeleting}
-              className="px-4 py-2 rounded-lg border border-default bg-surface dark:bg-[var(--color-surface)] hover:opacity-80 transition text-sm font-medium text-[var(--color-text)] dark:text-[var(--color-text)]"
+              className="px-4 py-2 rounded-lg border border-default bg-[var(--color-surface)]e dark:bg-[var(--color-surface)] hover:opacity-80 transition text-sm font-medium text-[var(--color-text)] dark:text-[var(--color-text)]"
             >
               Cancel
             </button>
