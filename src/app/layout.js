@@ -1,8 +1,6 @@
-
+import "@mantine/core/styles.css";
 import "./globals.css";
 import AppProviders from "./providers";
-import '@mantine/core/styles.css';
-
 
 const themeInitializer = `
 (() => {
