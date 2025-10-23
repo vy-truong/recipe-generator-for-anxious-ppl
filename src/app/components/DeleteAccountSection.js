@@ -88,46 +88,56 @@ export default function DeleteAccountSection() {
         </button>
 
       </div>
-            {/* Mantine Modal (styled to match Tailwind theme + dark mode) */}
       <Modal
-        opened={confirmOpen}
-        onClose={() => setConfirmOpen(false)}
-        centered
-        radius="lg"
-        overlayProps={{ opacity: 0.45, blur: 4 }}
+  opened={confirmOpen}
+  onClose={() => setConfirmOpen(false)}
+  centered
+  radius="lg"
+  overlayProps={{ opacity: 0.45, blur: 4 }}
+  withinPortal={false}
+  classNames={{
+    content: "bg-[var(--color-surface)] text-[var(--color-text)] border border-default", // ← key line
+    header: "text-[var(--color-text)]",
+    body: "text-[var(--color-text)]",
+  }}
+>
+  <div className="flex flex-col gap-4">
+    <h2 className="text-lg font-semibold text-heading">
+      Permanently Delete Account
+    </h2>
+
+    {/* don’t use dark: with CSS vars; force override so Mantine can't win */}
+    <p className="text-sm !text-[var(--color-text)] opacity-80">
+      This action cannot be undone. Your saved recipes and account details
+      will be removed permanently. Are you sure you want to continue?
+    </p>
+
+    <div className="flex justify-end gap-3">
+      <button
+        type="button"
+        onClick={() => setConfirmOpen(false)}
+        disabled={isDeleting}
+        className="px-4 py-2 rounded-lg border border-default bg-[var(--color-surface)] hover:opacity-80 transition text-sm font-medium text-[var(--color-text)]"
       >
-        <div className="flex flex-col gap-4">
-          <h3>Permanently Delete Account</h3>
-          <p className="text-sm text-[var(--color-text)] dark:text-[var(--color-text)] opacity-85">
-            This action cannot be undone. Your saved recipes and account details
-            will be removed permanently. Are you sure you want to continue?
-          </p>
+        Cancel
+      </button>
 
-          <div className="flex justify-end gap-3">
-            <button
-              type="button"
-              onClick={() => setConfirmOpen(false)}
-              disabled={isDeleting}
-              className="px-4 py-2 rounded-lg border border-default bg-[var(--color-surface)]e dark:bg-[var(--color-surface)] hover:opacity-80 transition text-sm font-medium text-[var(--color-text)] dark:text-[var(--color-text)]"
-            >
-              Cancel
-            </button>
+      <button
+        type="button"
+        onClick={handleConfirmDelete}
+        disabled={isDeleting}
+        className={`px-4 py-2 rounded-lg text-white font-medium text-sm transition ${
+          isDeleting ? "bg-red-500/70 cursor-not-allowed" : "bg-red-600 hover:bg-red-700"
+        }`}
+      >
+        {isDeleting ? "Deleting..." : "Delete"}
+      </button>
+    </div>
+  </div>
+</Modal>
 
-            <button
-              type="button"
-              onClick={handleConfirmDelete}
-              disabled={isDeleting}
-              className={`px-4 py-2 rounded-lg text-white font-medium text-sm transition ${
-                isDeleting
-                  ? "bg-red-500/70 cursor-not-allowed"
-                  : "bg-red-600 hover:bg-red-700"
-              }`}
-            >
-              {isDeleting ? "Deleting..." : "Delete"}
-            </button>
-          </div>
-        </div>
-      </Modal>
+
+
 
     </>
   );

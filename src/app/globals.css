@@ -55,7 +55,7 @@ body {
 
 html.dark body {
   background-color: var(--color-bg);
-  color: var(--color-textd);
+  color: var(--color-text);
 }
 
 .bg-app {
@@ -143,8 +143,8 @@ html.dark .bg-gradient-second {
 }
 html.dark .btn-difficulty-inactive {
   background-color: transparent;
-  color: var(--color-textd);
-  border-color: var(--color-borderd);
+  color: var(--color-text);
+  border-color: var(--color-border);
 }
 
 .btn-difficulty-active {
