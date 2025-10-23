@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Modal } from "@mantine/core";
+import QuickPreviewModal from "./QuickPreviewModal";
 
 function normalizeDifficulty(value) {
   if (!value) return "";
@@ -12,14 +12,84 @@ function normalizeDifficulty(value) {
   return value;
 }
 
-function ensureArray(value) {
-  if (Array.isArray(value)) return value;
-  if (typeof value === "string" && value.trim().length > 0) {
+function formatEntry(entry, role, index) {
+  if (entry == null) return "";
+
+  if (typeof entry === "string") {
+    const trimmed = entry.trim();
+    if (!trimmed) return "";
+    if (trimmed.startsWith("{") && trimmed.endsWith("}")) {
+      try {
+        return formatEntry(JSON.parse(trimmed), role, index);
+      } catch {
+        return trimmed;
+      }
+    }
+    return trimmed;
+  }
+
+  if (typeof entry === "object") {
+    if (role === "ingredient") {
+      const name =
+        entry.item ||
+        entry.name ||
+        entry.ingredient ||
+        entry.title ||
+        entry.text ||
+        "";
+      const quantity =
+        entry.quantity ||
+        entry.amount ||
+        entry.measure ||
+        entry.qty ||
+        "";
+
+      if (!name && !quantity) return "";
+      return quantity ? `${name} (${quantity})` : name;
+    }
+
+    if (role === "step") {
+      const number =
+        entry.stepNumber ??
+        entry.number ??
+        entry.index ??
+        index + 1;
+      const description =
+        entry.text ||
+        entry.instruction ||
+        entry.description ||
+        entry.detail ||
+        entry.value ||
+        "";
+
+      const prefix = Number.isFinite(number) ? `Step ${number}:` : "";
+      return [prefix, description].filter(Boolean).join(" ").trim();
+    }
+  }
+
+  return String(entry);
+}
+
+function ensureArray(value, role = "generic") {
+  if (Array.isArray(value)) {
     return value
-      .split(/\r?\n|,/)
+      .map((item, index) => formatEntry(item, role, index))
       .map((item) => item.trim())
       .filter(Boolean);
   }
+
+  if (typeof value === "string" && value.trim().length > 0) {
+    return value
+      .split(/\r?\n|,/)
+      .map((item) => formatEntry(item, role))
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+
+  if (typeof value === "object" && value !== null) {
+    return [formatEntry(value, role, 0)].filter(Boolean);
+  }
+
   return [];
 }
 
@@ -45,8 +115,8 @@ export default function RecipeCard({
 
   const breakdown = recipe?.time?.breakdown ?? recipe?.breakdown ?? "";
   const difficultyLabel = normalizeDifficulty(recipe?.difficulty || metaDifficulty || "");
-  const ingredients = ensureArray(recipe?.ingredients);
-  const steps = ensureArray(recipe?.steps ?? recipe?.instructions);
+  const ingredients = ensureArray(recipe?.ingredients, "ingredient");
+  const steps = ensureArray(recipe?.steps ?? recipe?.instructions, "step");
   const tags = Array.isArray(recipe?.tags) ? recipe.tags : [];
 
   return (
@@ -106,33 +176,12 @@ export default function RecipeCard({
         </div>
       </div>
 
-      <Modal
+      <QuickPreviewModal
         opened={allowPreviewToggle && isPreviewOpen}
         onClose={() => setIsPreviewOpen(false)}
-        title="Quick preview"
-        centered
-        radius="lg"
-        overlayProps={{ opacity: 0.35, blur: 2 }}
-      >
-        <div className="space-y-6 text-[var(--color-text)] dark:text-[var(--color-textd)]">
-          <section>
-            <h3 className="text-sm font-semibold uppercase tracking-wide opacity-70">Ingredients</h3>
-            <ul className="mt-3 list-disc pl-5 space-y-3 text-sm sm:text-base">
-              {ingredients.length > 0
-                ? ingredients.map((ingredient, index) => <li key={index}>{ingredient}</li>)
-                : <li>No ingredients provided.</li>}
-            </ul>
-          </section>
-          <section>
-            <h3 className="text-sm font-semibold uppercase tracking-wide opacity-70">Steps</h3>
-            <ol className="mt-3 list-decimal pl-5 space-y-3 text-sm leading-relaxed">
-              {steps.length > 0
-                ? steps.map((step, index) => <li key={index}>{step}</li>)
-                : <li>No steps provided.</li>}
-            </ol>
-          </section>
-        </div>
-      </Modal>
+        ingredients={ingredients}
+        steps={steps}
+      />
     </article>
   );
 }
