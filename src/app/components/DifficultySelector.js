@@ -9,7 +9,7 @@ export default function DifficultySelector({ options, active, onSelect, disabled
     console.warn("[DifficultySelector] Missing options");
     return null;
   }
-
+//d
   return (
     <div className="mt-5 text-left">
       <p className="text-sm font-medium text-[var(--color-text)] dark:text-[var(--color-textd)]">
