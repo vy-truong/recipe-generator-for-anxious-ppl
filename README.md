@@ -1,9 +1,5 @@
 # 🍳 MotiChef AI — Smart Cooking Assistant  
 
-<p align="center">
-  <img width="800" height="500" alt="MotiChef Demo" src="https://github.com/user-attachments/assets/EXAMPLE-MOTICHEF-HOMEPAGE"/>
-</p>
-
 ## 🌟 Project Overview  
 Many people face decision fatigue when cooking, spending a lot on groceries only to feel anxious when it’s time to cook and often end up eating unhealthy food instead.  
 I created **MotiChef** with the intention of helping others, including myself, make the process of cooking healthy meals easier and more approachable.  
